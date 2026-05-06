@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "../slice/auth/signupSlice"; 
+import authReducer from "../slice/auth/signupSlice";
 import loginReducer from "../slice/auth/loginSlice";
 import logotpReducer from "../slice/auth/logOtpSlice";
 import profileReducer from "../slice/profile/profileSlice";
@@ -7,8 +7,7 @@ import passwordReducer from "../slice/auth/forgotPassSlice";
 import categoryReducer from "../slice/category/categorySlice";
 import dishReducer from "../slice/dishes/dishesSlice";
 import pagecartReducer from "../slice/cart/cartSlice";
-
-
+import addressReducer from "../slice/addressform/addressFormSlice";
 
 export const store = configureStore({
   reducer: {
@@ -19,8 +18,7 @@ export const store = configureStore({
     password: passwordReducer,
     categories: categoryReducer,
     dishes: dishReducer,
-  
     pagecart: pagecartReducer,
-   
+    address: addressReducer,
   },
 });

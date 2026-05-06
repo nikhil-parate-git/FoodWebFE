@@ -1,12 +1,198 @@
-import React from "react";
+// import React from "react";
+// import { useNavigate } from "react-router-dom";
+// import { useSelector } from "react-redux";
+// import { motion } from "framer-motion";
+// import { MapPin, Building2 } from "lucide-react";
+
+// const AddressForm = () => {
+//   const navigate = useNavigate();
+//   const { totalPrice } = useSelector((state) => state.pagecart);
+
+//   const DELIVERY_FEE = totalPrice > 499 ? 0 : totalPrice > 0 ? 40 : 0;
+//   const PLATFORM_FEE = 10;
+//   const PACKING = 20;
+//   const GRAND_TOTAL = totalPrice + DELIVERY_FEE + PLATFORM_FEE + PACKING;
+
+//   const inputStyle =
+//     "w-full bg-white border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-[#e84825] focus:ring-2 focus:ring-[#e84825]/10 transition-all placeholder:text-gray-300 autofill-custom";
+
+//   return (
+//     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+//       <style>{`
+//         input.autofill-custom:-webkit-autofill,
+//         input.autofill-custom:-webkit-autofill:hover,
+//         input.autofill-custom:-webkit-autofill:focus {
+//           -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+//           -webkit-text-fill-color: #333 !important;
+//           transition: background-color 5000s ease-in-out 0s;
+//         }
+//       `}</style>
+
+//       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+//         {/* Header */}
+//         <div className="flex items-center gap-3 mb-10">
+//           <div className="w-1 h-8 bg-gradient-to-b from-[#e84825] to-[#ff6b4a] rounded-full" />
+//           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+//             Delivery Information
+//           </h1>
+//         </div>
+
+//         {/* ✅ form → div */}
+//         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 items-start">
+
+//           {/* Left: Address Inputs */}
+//           <div className="lg:col-span-3 bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8">
+//             <div className="flex items-center gap-2 mb-6">
+//               <MapPin className="w-5 h-5 text-[#e84825]" />
+//               <h2 className="text-lg font-bold text-gray-800">Shipping Address</h2>
+//             </div>
+
+//             <div className="space-y-4">
+//               <div className="flex gap-4">
+//                 <input type="text" placeholder="First name" className={inputStyle} />
+//                 <input type="text" placeholder="Last name" className={inputStyle} />
+//               </div>
+//               <input type="email" placeholder="Email address" className={inputStyle} />
+//               <input type="text" placeholder="Street address" className={inputStyle} />
+//               <div className="flex gap-4">
+//                 <input type="text" placeholder="City" className={inputStyle} />
+//                 <input type="text" placeholder="State" className={inputStyle} />
+//               </div>
+//               <div className="flex gap-4">
+//                 <input type="text" placeholder="Zip code" className={inputStyle} />
+//                 <input type="text" placeholder="Country" className={inputStyle} />
+//               </div>
+//               <input
+//                 type="tel"
+//                 placeholder="Phone (10 digits)"
+//                 className={inputStyle}
+//                 maxLength={10}
+//                 onInput={(e) => {
+//                   e.target.value = e.target.value.replace(/[^0-9]/g, "").slice(0, 10);
+//                 }}
+//               />
+//             </div>
+//           </div>
+
+//           {/* Right: Order Summary */}
+//           <div className="lg:col-span-2">
+//             <motion.div
+//               initial={{ opacity: 0, y: 20 }}
+//               animate={{ opacity: 1, y: 0 }}
+//               className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden sticky top-24"
+//             >
+//               <div className="p-6">
+//                 <h2 className="text-lg font-bold text-gray-900 mb-5 flex items-center gap-2">
+//                   <Building2 className="w-5 h-5 text-[#e84825]" />
+//                   Order Summary
+//                 </h2>
+
+//                 <div className="space-y-3 text-sm">
+//                   <div className="flex justify-between text-gray-600 border-b border-gray-50 pb-3">
+//                     <span>Subtotal</span>
+//                     <span className="font-semibold text-gray-900">₹{totalPrice.toFixed(2)}</span>
+//                   </div>
+//                   <div className="flex justify-between text-gray-600 border-b border-gray-50 pb-3">
+//                     <span>Delivery Fee</span>
+//                     <span className={`font-semibold ${DELIVERY_FEE === 0 ? "text-green-600" : "text-gray-900"}`}>
+//                       {DELIVERY_FEE === 0 ? "FREE" : `₹${DELIVERY_FEE}`}
+//                     </span>
+//                   </div>
+//                   <div className="flex justify-between text-gray-600 border-b border-gray-50 pb-3">
+//                     <span>Platform Fee</span>
+//                     <span className="font-semibold text-gray-900">₹{PLATFORM_FEE}</span>
+//                   </div>
+//                   <div className="flex justify-between text-gray-600 border-b border-gray-50 pb-3">
+//                     <span>Packing Charge</span>
+//                     <span className="font-semibold text-gray-900">₹{PACKING}</span>
+//                   </div>
+//                   <div className="flex justify-between text-base font-bold text-gray-900 pt-1">
+//                     <span>Total</span>
+//                     <span className="text-xl">₹{GRAND_TOTAL.toFixed(2)}</span>
+//                   </div>
+//                 </div>
+
+//                 {/* ✅ type="button" + navigate */}
+//                 <button
+//                   type="button"
+//                   onClick={() => navigate("/payment")}
+//                   className="w-full mt-6 bg-gradient-to-r from-[#e84825] to-[#ff6b4a] text-white py-3.5 rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+//                 >
+//                   Proceed To Payment →
+//                 </button>
+
+//                 <button
+//                   type="button"
+//                   onClick={() => navigate("/cart")}
+//                   className="w-full mt-3 py-2.5 text-gray-400 hover:text-gray-600 text-sm font-medium transition-colors"
+//                 >
+//                   ← Back to Cart
+//                 </button>
+//               </div>
+
+//               {totalPrice < 500 && totalPrice > 0 && (
+//                 <div className="border-t border-gray-100 p-4 bg-orange-50">
+//                   <p className="text-xs text-[#e84825] font-medium text-center">
+//                     Add ₹{(500 - totalPrice).toFixed(0)} more for FREE delivery!
+//                   </p>
+//                   <div className="h-1.5 bg-orange-100 rounded-full mt-2 overflow-hidden">
+//                     <div
+//                       className="h-full bg-[#e84825] rounded-full transition-all"
+//                       style={{ width: `${Math.min((totalPrice / 500) * 100, 100)}%` }}
+//                     />
+//                   </div>
+//                 </div>
+//               )}
+//             </motion.div>
+//           </div>
+
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default AddressForm;
+
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { motion } from "framer-motion";
-import { MapPin, Building2 } from "lucide-react";
+import { MapPin, Building2, Loader2 } from "lucide-react";
+import { createAddress } from "../redux/slice/addressform/addressFormSlice";
 
 const AddressForm = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
   const { totalPrice } = useSelector((state) => state.pagecart);
+  const { loading } = useSelector((state) => state.address);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    street: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "",
+    phone: "",
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // API Call via Redux Thunk
+    const resultAction = await dispatch(createAddress(formData));
+    if (createAddress.fulfilled.match(resultAction)) {
+      navigate("/payment");
+    }
+  };
 
   const DELIVERY_FEE = totalPrice > 499 ? 0 : totalPrice > 0 ? 40 : 0;
   const PLATFORM_FEE = 10;
@@ -29,18 +215,14 @@ const AddressForm = () => {
       `}</style>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-10">
           <div className="w-1 h-8 bg-gradient-to-b from-[#e84825] to-[#ff6b4a] rounded-full" />
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-            Delivery Information
-          </h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900"> Delivery Information </h1>
         </div>
 
-        {/* ✅ form → div */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 items-start">
-
-          {/* Left: Address Inputs */}
+        {/* Wrap in Form for better handling */}
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-5 gap-10 items-start">
+          
           <div className="lg:col-span-3 bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8">
             <div className="flex items-center gap-2 mb-6">
               <MapPin className="w-5 h-5 text-[#e84825]" />
@@ -49,42 +231,40 @@ const AddressForm = () => {
 
             <div className="space-y-4">
               <div className="flex gap-4">
-                <input type="text" placeholder="First name" className={inputStyle} />
-                <input type="text" placeholder="Last name" className={inputStyle} />
+                <input required name="firstName" value={formData.firstName} onChange={handleChange} type="text" placeholder="First name" className={inputStyle} />
+                <input required name="lastName" value={formData.lastName} onChange={handleChange} type="text" placeholder="Last name" className={inputStyle} />
               </div>
-              <input type="email" placeholder="Email address" className={inputStyle} />
-              <input type="text" placeholder="Street address" className={inputStyle} />
+              <input required name="email" value={formData.email} onChange={handleChange} type="email" placeholder="Email address" className={inputStyle} />
+              <input required name="street" value={formData.street} onChange={handleChange} type="text" placeholder="Street address" className={inputStyle} />
               <div className="flex gap-4">
-                <input type="text" placeholder="City" className={inputStyle} />
-                <input type="text" placeholder="State" className={inputStyle} />
+                <input required name="city" value={formData.city} onChange={handleChange} type="text" placeholder="City" className={inputStyle} />
+                <input required name="state" value={formData.state} onChange={handleChange} type="text" placeholder="State" className={inputStyle} />
               </div>
               <div className="flex gap-4">
-                <input type="text" placeholder="Zip code" className={inputStyle} />
-                <input type="text" placeholder="Country" className={inputStyle} />
+                <input required name="zipCode" value={formData.zipCode} onChange={handleChange} type="text" placeholder="Zip code" className={inputStyle} />
+                <input required name="country" value={formData.country} onChange={handleChange} type="text" placeholder="Country" className={inputStyle} />
               </div>
               <input
+                required
+                name="phone"
+                value={formData.phone}
                 type="tel"
                 placeholder="Phone (10 digits)"
                 className={inputStyle}
                 maxLength={10}
                 onInput={(e) => {
                   e.target.value = e.target.value.replace(/[^0-9]/g, "").slice(0, 10);
+                  handleChange(e);
                 }}
               />
             </div>
           </div>
 
-          {/* Right: Order Summary */}
           <div className="lg:col-span-2">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden sticky top-24"
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden sticky top-24">
               <div className="p-6">
                 <h2 className="text-lg font-bold text-gray-900 mb-5 flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-[#e84825]" />
-                  Order Summary
+                  <Building2 className="w-5 h-5 text-[#e84825]" /> Order Summary
                 </h2>
 
                 <div className="space-y-3 text-sm">
@@ -112,13 +292,12 @@ const AddressForm = () => {
                   </div>
                 </div>
 
-                {/* ✅ type="button" + navigate */}
                 <button
-                  type="button"
-                  onClick={() => navigate("/payment")}
-                  className="w-full mt-6 bg-gradient-to-r from-[#e84825] to-[#ff6b4a] text-white py-3.5 rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                  type="submit"
+                  disabled={loading}
+                  className="w-full mt-6 bg-gradient-to-r from-[#e84825] to-[#ff6b4a] text-white py-3.5 rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70"
                 >
-                  Proceed To Payment →
+                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Proceed To Payment →"}
                 </button>
 
                 <button
@@ -136,17 +315,13 @@ const AddressForm = () => {
                     Add ₹{(500 - totalPrice).toFixed(0)} more for FREE delivery!
                   </p>
                   <div className="h-1.5 bg-orange-100 rounded-full mt-2 overflow-hidden">
-                    <div
-                      className="h-full bg-[#e84825] rounded-full transition-all"
-                      style={{ width: `${Math.min((totalPrice / 500) * 100, 100)}%` }}
-                    />
+                    <div className="h-full bg-[#e84825] rounded-full transition-all" style={{ width: `${Math.min((totalPrice / 500) * 100, 100)}%` }} />
                   </div>
                 </div>
               )}
             </motion.div>
           </div>
-
-        </div> {/* ✅ div close */}
+        </form>
       </div>
     </div>
   );
