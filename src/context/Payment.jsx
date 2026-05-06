@@ -3,18 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { motion } from "framer-motion";
 import { Lock, ChevronLeft, ShoppingBag, Loader2 } from "lucide-react";
-import { toast } from "react-toastify"; // ✅ FIXED: was missing
+import { toast } from "react-toastify";
 import {
   createRazorpayOrder,
   verifyRazorpayPayment,
   resetPayment,
 } from "../redux/slice/payment/paymentSlice";
+import { calcFees } from "../utils/cartFees";
 
 const Payment = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // ✅ FIX: Prevent double API call in React StrictMode (dev) or fast re-renders
   const isPayingRef = useRef(false);
 
   const { items, totalPrice } = useSelector((state) => state.pagecart);
@@ -22,12 +22,14 @@ const Payment = () => {
     (state) => state.payment,
   );
 
-  const DELIVERY_FEE = totalPrice > 499 ? 0 : totalPrice > 0 ? 40 : 0;
-  const PLATFORM_FEE = 10;
-  const PACKING = 20;
-  const TOTAL_AMOUNT = totalPrice + DELIVERY_FEE + PLATFORM_FEE + PACKING;
+  // ✅ Fees from shared utility — consistent with CartPage & AddressForm
+  const {
+    deliveryFee: DELIVERY_FEE,
+    platformFee: PLATFORM_FEE,
+    packingCharge: PACKING,
+    grandTotal: TOTAL_AMOUNT,
+  } = calcFees(totalPrice);
 
-  // ── Redirect after successful payment ──────────────────────────────────────
   useEffect(() => {
     if (paymentSuccess) {
       dispatch(resetPayment());
@@ -35,9 +37,8 @@ const Payment = () => {
     }
   }, [paymentSuccess, navigate, dispatch]);
 
-  // ── Load Razorpay script dynamically if not already loaded ─────────────────
   useEffect(() => {
-    if (window.Razorpay) return; // already loaded
+    if (window.Razorpay) return;
 
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
@@ -47,12 +48,10 @@ const Payment = () => {
     document.body.appendChild(script);
 
     return () => {
-      // cleanup only if we added it
       if (document.body.contains(script)) document.body.removeChild(script);
     };
   }, []);
 
-  // ── Open Razorpay Checkout ─────────────────────────────────────────────────
   const openRazorpay = (orderData) => {
     if (!window.Razorpay) {
       toast.error("Razorpay not loaded. Please refresh and try again.");
@@ -74,7 +73,6 @@ const Payment = () => {
       },
       theme: { color: "#e84825" },
 
-      // ── Payment Success Handler ──────────────────────────────────────────
       handler: async (response) => {
         await dispatch(
           verifyRazorpayPayment({
@@ -87,11 +85,10 @@ const Payment = () => {
         isPayingRef.current = false;
       },
 
-      // ── Payment Dismiss Handler ──────────────────────────────────────────
       modal: {
         ondismiss: () => {
           toast.info("Payment cancelled");
-          isPayingRef.current = false; // ✅ Reset guard on dismiss too
+          isPayingRef.current = false;
         },
       },
     };
@@ -102,31 +99,30 @@ const Payment = () => {
       toast.error(
         `Payment failed: ${response.error?.description || "Unknown error"}`,
       );
-      isPayingRef.current = false; // ✅ Reset guard on failure too
+      isPayingRef.current = false;
     });
 
     rzp.open();
   };
 
-  // ── Pay Button Click ───────────────────────────────────────────────────────
   const handlePay = async () => {
-    // ✅ FIX: Prevent duplicate calls from double-click or StrictMode
     if (isPayingRef.current) return;
     isPayingRef.current = true;
 
-    const resultAction = await dispatch(createRazorpayOrder());
+    // ✅ Pass grandTotal so backend creates Razorpay order for correct amount
+    const resultAction = await dispatch(
+      createRazorpayOrder({ amount: TOTAL_AMOUNT }),
+    );
 
     if (createRazorpayOrder.fulfilled.match(resultAction)) {
       openRazorpay(resultAction.payload);
     } else {
-      // Reset guard if order creation itself failed
       isPayingRef.current = false;
     }
   };
 
   const isLoading = orderLoading || verifyLoading;
 
-  // ── Guard: empty cart ──────────────────────────────────────────────────────
   if (!items || items.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-4">
@@ -152,7 +148,7 @@ const Payment = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-4">
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2 border border-gray-100">
-        {/* ── LEFT: Order Summary ────────────────────────────────────────── */}
+        {/* ── LEFT: Order Summary ── */}
         <div className="p-8 bg-gray-50 border-r border-gray-100">
           <button
             type="button"
@@ -200,6 +196,7 @@ const Payment = () => {
                     </span>
                   </span>
                 </div>
+                {/* ✅ price × quantity shown correctly */}
                 <span className="font-semibold text-gray-800 shrink-0">
                   ₹{(item.dish?.price * item.quantity).toFixed(2)}
                 </span>
@@ -238,7 +235,7 @@ const Payment = () => {
           </div>
         </div>
 
-        {/* ── RIGHT: Pay via Razorpay ────────────────────────────────────── */}
+        {/* ── RIGHT: Pay via Razorpay ── */}
         <div className="p-8 flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-6">
             <Lock className="w-4 h-4 text-[#e84825]" />
@@ -247,7 +244,6 @@ const Payment = () => {
             </h2>
           </div>
 
-          {/* Razorpay Info Card */}
           <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5 mb-8">
             <p className="text-sm text-gray-600 leading-relaxed">
               Click the button below to open the{" "}
@@ -268,7 +264,6 @@ const Payment = () => {
             </div>
           </div>
 
-          {/* Amount Summary */}
           <div className="bg-gray-50 rounded-xl p-4 mb-8 flex justify-between items-center">
             <span className="text-sm text-gray-500 font-medium">
               Amount to Pay
@@ -278,7 +273,6 @@ const Payment = () => {
             </span>
           </div>
 
-          {/* Pay Button */}
           <motion.button
             whileTap={{ scale: 0.98 }}
             whileHover={{ scale: isLoading ? 1 : 1.01 }}

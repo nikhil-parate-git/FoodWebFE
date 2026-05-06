@@ -1,204 +1,19 @@
-// import React from "react";
-// import {
-//   Package,
-//   CheckCircle2,
-//   Clock,
-// } from "lucide-react";
-
-// const Orders = () => {
-//   // Dummy Data with Images
-//   const myOrders = [
-//     {
-//       id: "ORD-9921",
-//       date: "May 1, 2026",
-//       total: 380.0,
-//       status: "Processing",
-//       items: [
-//         {
-//           name: "Greek salad",
-//           qty: 2,
-//           price: 150,
-//           image:
-//             "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=100&q=80",
-//         },
-//         {
-//           name: "Peri Peri Rolls",
-//           qty: 1,
-//           price: 80,
-//           image:
-//             "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=100&q=80",
-//         },
-//       ],
-//     },
-//     {
-//       id: "ORD-9845",
-//       date: "April 28, 2026",
-//       total: 540.0,
-//       status: "Delivered",
-//       items: [
-//         {
-//           name: "Margherita Pizza",
-//           qty: 1,
-//           price: 540,
-//           image:
-//             "https://images.unsplash.com/photo-1574071318508-1cdbad80ad50?auto=format&fit=crop&w=100&q=80",
-//         },
-//       ],
-//     },
-//   ];
-
-//   // Status Badge Logic
-//   const getStatusStyle = (status) => {
-//     switch (status) {
-//       case "Delivered":
-//         return "bg-green-100 text-green-600 border-green-200";
-//       case "Processing":
-//         return "bg-orange-100 text-orange-600 border-orange-200";
-//       default:
-//         return "bg-blue-100 text-blue-600 border-blue-200";
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen w-full font-['Nunito'] py-5 px-4">
-//       <div className="max-w-5xl mx-auto">
-//         {/* Header Section */}
-//         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
-//           <div>
-//             <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
-//               My Orders
-//             </h1>
-//             <p className="text-gray-500 mt-2">
-//               Check the status of your recent orders and manage returns.
-//             </p>
-//           </div>
-
-//         </div>
-
-//         <div className="space-y-8">
-//           {myOrders.map((order) => (
-//             <div
-//               key={order.id}
-//               className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden"
-//             >
-//               {/* Order Header Info */}
-//               <div className="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4">
-//                 <div className="flex gap-8">
-//                   <div>
-//                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-//                       Order Placed
-//                     </p>
-//                     <p className="text-sm font-semibold text-gray-700">
-//                       {order.date}
-//                     </p>
-//                   </div>
-//                   <div>
-//                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-//                       Total Amount
-//                     </p>
-//                     <p className="text-sm font-bold text-gray-900">
-//                       ₹{order.total.toFixed(2)}
-//                     </p>
-//                   </div>
-//                   <div className="hidden sm:block">
-//                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-//                       Order ID
-//                     </p>
-//                     <p className="text-sm font-medium text-gray-600">
-//                       #{order.id}
-//                     </p>
-//                   </div>
-//                 </div>
-
-//                 <div
-//                   className={`px-3 py-1 rounded-full border text-[11px] font-bold uppercase tracking-tight flex items-center gap-1.5 ${getStatusStyle(order.status)}`}
-//                 >
-//                   {order.status === "Delivered" ? (
-//                     <CheckCircle2 size={12} />
-//                   ) : (
-//                     <Clock size={12} />
-//                   )}
-//                   {order.status}
-//                 </div>
-//               </div>
-
-//               {/* Order Items List */}
-//               <div className="p-6">
-//                 <div className="divide-y divide-gray-50">
-//                   {order.items.map((item, idx) => (
-//                     <div
-//                       key={idx}
-//                       className="py-4 first:pt-0 last:pb-0 flex items-center justify-between"
-//                     >
-//                       <div className="flex items-center gap-4">
-//                         <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 border border-gray-50 flex-shrink-0">
-//                           <img
-//                             src={item.image}
-//                             alt={item.name}
-//                             className="w-full h-full object-cover"
-//                           />
-//                         </div>
-//                         <div>
-//                           <h4 className="text-sm font-bold text-gray-800">
-//                             {item.name}
-//                           </h4>
-//                           <p className="text-xs text-gray-400 mt-1 flex items-center gap-2">
-//                             Quantity:{" "}
-//                             <span className="text-gray-600 font-semibold">
-//                               {item.qty}
-//                             </span>
-//                             <span className="text-gray-200">|</span>
-//                             Price:{" "}
-//                             <span className="text-gray-600 font-semibold">
-//                               ₹{item.price}
-//                             </span>
-//                           </p>
-//                         </div>
-//                       </div>
-//                       <button className="text-[#e84825] text-xs font-bold hover:underline hidden sm:block">
-//                         View Product
-//                       </button>
-//                     </div>
-//                   ))}
-//                 </div>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-
-//         {/* Support Section */}
-//         <div className="mt-12 p-8 bg-orange-50 rounded-3xl border border-orange-100 flex flex-col md:flex-row items-center justify-between gap-6">
-//           <div className="flex items-center gap-5">
-//             <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm">
-//               <Package className="text-[#e84825]" size={28} />
-//             </div>
-//             <div>
-//               <h3 className="font-bold text-gray-900">
-//                 Need help with an order?
-//               </h3>
-//               <p className="text-sm text-gray-500">
-//                 Our 24/7 support team is here to assist you.
-//               </p>
-//             </div>
-//           </div>
-//           <button className="px-8 py-3 bg-[#e84825] text-white font-bold rounded-2xl text-sm shadow-xl shadow-orange-200 hover:bg-[#cf3d1e] transition-all">
-//             Contact Support
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Orders;
-
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { fetchMyOrders } from "../../redux/slice/orders/orderSlice";
-import { Package, CheckCircle2, Clock, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ShoppingBag,
+  Clock,
+  CheckCircle2,
+  MapPin,
+  Loader2,
+} from "lucide-react";
 
 const Orders = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const {
     orders: myOrders,
     loading,
@@ -209,148 +24,201 @@ const Orders = () => {
     dispatch(fetchMyOrders());
   }, [dispatch]);
 
-  // Status Badge Logic
   const getStatusStyle = (status) => {
-    switch (status) {
-      case "Delivered":
-        return "bg-green-100 text-green-600 border-green-200";
-      case "Processing":
-        return "bg-orange-100 text-orange-600 border-orange-200";
-      default:
-        return "bg-blue-100 text-blue-600 border-blue-200";
-    }
+    const s = status?.toLowerCase();
+    if (s === "delivered") return "bg-[#EAF3DE] text-[#27500A]";
+    if (s === "processing") return "bg-[#FAEEDA] text-[#633806]";
+    return "bg-[#E6F1FB] text-[#0C447C]";
   };
 
+  const totalSpent = myOrders.reduce((acc, o) => acc + (o.totalAmount || 0), 0);
+  const lastOrder = myOrders[0]
+    ? new Date(myOrders[0].createdAt).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "—";
+
   return (
-    <div className="min-h-screen w-full font-['Nunito'] py-5 px-4">
-      <div className="max-w-5xl mx-auto">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+    <div className="min-h-screen bg-gray-50 font-[Outfit,sans-serif] py-8 px-4">
+      <div className="w-full mx-auto">
+        {/* Top Bar with Back Button */}
+        <div className="flex items-center gap-4 mb-8">
+          <button
+            onClick={() => navigate("/menu")}
+            className="w-10 cursor-pointer h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors flex-shrink-0"
+          >
+            <ArrowLeft size={18} className="text-gray-700" />
+          </button>
           <div>
-            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
+            <h1 className="text-[28px] font-serif font-normal text-gray-900 tracking-tight leading-tight">
               My Orders
             </h1>
-            <p className="text-gray-500 mt-2">
-              Check the status of your recent orders and manage returns.
+            <p className="text-sm text-gray-400 mt-0.5">
+              Track and manage your recent orders
             </p>
           </div>
         </div>
 
-        {/* Loading State */}
-        {loading && (
-          <div className="flex items-center justify-center py-20 gap-3 text-gray-500">
-            <Loader2 className="animate-spin" size={24} />
-            <span className="text-sm font-semibold">
-              Loading your orders...
-            </span>
-          </div>
-        )}
-
-        {/* Error State */}
-        {!loading && error && (
-          <div className="text-center py-20 text-red-500 font-semibold text-sm">
-            {error}
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && !error && myOrders.length === 0 && (
-          <div className="text-center py-20 text-gray-400 font-semibold text-sm">
-            No orders found.
-          </div>
-        )}
-
-        {/* Orders List */}
-        {!loading && !error && myOrders.length > 0 && (
-          <div className="space-y-8">
-            {myOrders.map((order) => (
-              <div
-                key={order._id || order.id}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden"
-              >
-                {/* Order Header Info */}
-                <div className="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4">
-                  <div className="flex gap-8">
-                    <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                        Order Placed
-                      </p>
-                      <p className="text-sm font-semibold text-gray-700">
-                        {new Date(
-                          order.createdAt || order.date,
-                        ).toLocaleDateString("en-IN", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                        Total Amount
-                      </p>
-                      <p className="text-sm font-bold text-gray-900">
-                        ₹
-                        {parseFloat(order.amount || order.total || 0).toFixed(
-                          2,
-                        )}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`px-3 py-1 rounded-full border text-[11px] font-bold uppercase tracking-tight flex items-center gap-1.5 ${getStatusStyle(order.status)}`}
-                  >
-                    {order.status === "Delivered" ? (
-                      <CheckCircle2 size={12} />
-                    ) : (
-                      <Clock size={12} />
-                    )}
-                    {order.status}
-                  </div>
-                </div>
-
-                {/* Order Items List */}
-                <div className="p-6">
-                  <div className="divide-y divide-gray-50">
-                    {(order.items || order.products || []).map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="py-4 first:pt-0 last:pb-0 flex items-center justify-between"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 border border-gray-50 flex-shrink-0">
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-bold text-gray-800">
-                              {item.name}
-                            </h4>
-                            <p className="text-xs text-gray-400 mt-1 flex items-center gap-2">
-                              Quantity:{" "}
-                              <span className="text-gray-600 font-semibold">
-                                {item.quantity || item.qty}
-                              </span>
-                              <span className="text-gray-200">|</span>
-                              Price:{" "}
-                              <span className="text-gray-600 font-semibold">
-                                ₹{item.price}
-                              </span>
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+        {/* Stats Row
+        {!loading && myOrders.length > 0 && (
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            {[
+              { label: "Total orders", value: `${myOrders.length}`, sub: "placed" },
+              { label: "Total spent", value: `₹${totalSpent}` },
+              { label: "Last order", value: lastOrder, small: true },
+            ].map((s, i) => (
+              <div key={i} className="bg-white rounded-xl p-4 border border-gray-100">
+                <p className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold mb-1">{s.label}</p>
+                <p className={`font-semibold text-gray-900 ${s.small ? "text-[15px]" : "text-xl"}`}>
+                  {s.value}{" "}
+                  {s.sub && <span className="text-xs font-normal text-gray-400">{s.sub}</span>}
+                </p>
               </div>
             ))}
           </div>
+        )} */}
+
+        {loading && (
+          <div className="flex items-center justify-center py-24 gap-3 text-gray-400">
+            <Loader2 className="animate-spin" size={20} />
+            <span className="text-sm">Loading your orders...</span>
+          </div>
         )}
+        {!loading && error && (
+          <div className="text-center py-24 text-red-500 text-sm">{error}</div>
+        )}
+        {!loading && !error && myOrders.length === 0 && (
+          <div className="text-center py-24 text-gray-400 text-sm">
+            No orders yet.
+          </div>
+        )}
+
+        {/* Order Cards */}
+        {!loading &&
+          !error &&
+          myOrders.map((order) => (
+            <div
+              key={order._id}
+              className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-5"
+            >
+              {/* Header */}
+              <div className="px-5 py-4 flex items-center justify-between gap-3 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                    <ShoppingBag size={17} className="text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-[12px] font-medium text-gray-700 font-mono truncate max-w-[180px]">
+                      {order.razorpayOrderId}
+                    </p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">
+                      {new Date(order.createdAt).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
+                </div>
+                <span
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold ${getStatusStyle(order.status)}`}
+                >
+                  {order.status?.toLowerCase() === "delivered" ? (
+                    <CheckCircle2 size={11} />
+                  ) : (
+                    <Clock size={11} />
+                  )}
+                  {order.status}
+                </span>
+              </div>
+
+              {/* Items */}
+              <div className="px-5">
+                {(order.items || []).map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-4 py-4 border-b border-gray-50 last:border-none"
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-14 h-14 rounded-xl object-cover border border-gray-100 flex-shrink-0"
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-800">
+                        {item.name}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {item.quantity} × ₹{item.price}
+                      </p>
+                    </div>
+                    <p className="text-sm font-semibold text-gray-800">
+                      ₹{item.quantity * item.price}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Delivery Address */}
+              {order.address && (
+                <div className="px-5 py-4 border-t border-gray-100 flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <MapPin size={14} className="text-gray-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold mb-1">
+                      Delivered to
+                    </p>
+                    <p className="text-[13px] text-gray-500 leading-relaxed">
+                      {order.address.firstName} {order.address.lastName} ·{" "}
+                      {order.address.street}, {order.address.city},{" "}
+                      {order.address.state} {order.address.zipCode}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Bill Breakdown */}
+              <div className="bg-gray-50 border-t border-gray-100 px-5 py-4">
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>Subtotal</span>
+                    <span>₹{order.subtotal}</span>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>Delivery fee</span>
+                    <span>₹{order.deliveryFee}</span>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>Platform fee</span>
+                    <span>₹{order.platformFee}</span>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>Packing charges</span>
+                    <span>₹{order.packingCharge}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-3 mt-1 border-t border-gray-200">
+                    <span className="text-[15px] font-semibold text-gray-900">
+                      Total paid
+                    </span>
+                    <span className="text-[16px] font-semibold text-blue-600">
+                      ₹{order.totalAmount}
+                    </span>
+                  </div>
+                </div>
+                {order.razorpayPaymentId && (
+                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
+                    <span className="text-[11px] text-gray-400 font-mono">
+                      Paid via Razorpay · {order.razorpayPaymentId}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
       </div>
     </div>
   );

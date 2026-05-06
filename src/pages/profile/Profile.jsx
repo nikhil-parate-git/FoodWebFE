@@ -240,19 +240,6 @@ const Profile = () => {
                       </p>
                     </div>
                   </div>
-
-                  {/* Address - Full Width */}
-                  <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                      <FiMapPin className="w-4 h-4 text-gray-400" />
-                      Address
-                    </label>
-                    <div className="bg-gray-50 rounded-lg px-4 py-2.5 border border-gray-200">
-                      <p className="text-gray-900 text-sm">
-                        {user?.address || "No address added"}
-                      </p>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Action Buttons */}

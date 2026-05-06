@@ -24,6 +24,7 @@ import {
   X,
   Loader2,
 } from "lucide-react";
+import { calcFees } from "../utils/cartFees";
 
 const CartPage = () => {
   const navigate = useNavigate();
@@ -31,33 +32,18 @@ const CartPage = () => {
   const { items, totalPrice, loading } = useSelector((state) => state.pagecart);
 
   const [showDeleteModal, setShowDeleteModal] = useState(null);
-  // ✅ Initial load track karne ke liye — blink fix
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    // ✅ Refresh pe cart fetch karo, phir initialLoading false karo
     dispatch(fetchCart()).finally(() => {
       setInitialLoading(false);
     });
   }, [dispatch]);
 
   const stats = useMemo(() => {
-    const deliveryFee = totalPrice > 0 && totalPrice < 500 ? 40 : 0;
-    const platformFee = 10;
-    const packingCharge = 20;
-    let discount = 0;
-    const grandTotal =
-      totalPrice + deliveryFee + platformFee + packingCharge - discount;
-    const savings = deliveryFee === 0 && totalPrice > 0 ? 40 : 0;
-    return {
-      deliveryFee,
-      grandTotal,
-      savings,
-      platformFee,
-      packingCharge,
-      discount,
-    };
+    const fees = calcFees(totalPrice);
+    return { ...fees, discount: 0 };
   }, [totalPrice]);
 
   const handleQtyChange = (dishId, newQty) => {
@@ -75,7 +61,6 @@ const CartPage = () => {
     }
   };
 
-  // ✅ Jab tak cart fetch ho raha hai — full page loader dikhao (blink nahi hoga)
   if (initialLoading || loading) {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center gap-4">
@@ -92,7 +77,6 @@ const CartPage = () => {
     );
   }
 
-  // ✅ Sirf fetch complete hone ke baad empty check karo
   if (items.length === 0) {
     return (
       <motion.div
@@ -249,7 +233,7 @@ const CartPage = () => {
                         </div>
                       </div>
 
-                      {/* Total */}
+                      {/* Total — quantity × price */}
                       <div className="col-span-2 text-right">
                         <span className="font-extrabold text-gray-900 text-lg">
                           ₹{(item.dish?.price * item.quantity).toFixed(2)}

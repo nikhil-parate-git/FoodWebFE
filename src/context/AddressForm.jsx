@@ -2,10 +2,18 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Building2, Loader2, Search, ChevronDown, X } from "lucide-react";
+import {
+  MapPin,
+  Building2,
+  Loader2,
+  Search,
+  ChevronDown,
+  X,
+} from "lucide-react";
 import { createAddress } from "../redux/slice/addressform/addressFormSlice";
 import { Country, State, City } from "country-state-city";
 import { toast } from "react-toastify";
+import { calcFees } from "../utils/cartFees";
 
 // ─── Reusable Searchable Dropdown ───────────────────────────────────────────
 const SearchableDropdown = ({
@@ -23,11 +31,11 @@ const SearchableDropdown = ({
   const inputRef = useRef(null);
 
   const filtered = options.filter((opt) =>
-    opt[displayKey]?.toLowerCase().includes(search.toLowerCase())
+    opt[displayKey]?.toLowerCase().includes(search.toLowerCase()),
   );
 
   const selected = options.find(
-    (opt) => (valueKey ? opt[valueKey] : opt[displayKey]) === value
+    (opt) => (valueKey ? opt[valueKey] : opt[displayKey]) === value,
   );
 
   useEffect(() => {
@@ -59,7 +67,6 @@ const SearchableDropdown = ({
 
   return (
     <div ref={ref} className="relative w-full">
-      {/* Trigger Button */}
       <button
         type="button"
         disabled={disabled}
@@ -91,7 +98,6 @@ const SearchableDropdown = ({
         </span>
       </button>
 
-      {/* Dropdown Panel */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -101,7 +107,6 @@ const SearchableDropdown = ({
             transition={{ duration: 0.15 }}
             className="absolute z-50 mt-1.5 w-full bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden"
           >
-            {/* Search Input */}
             <div className="p-2 border-b border-gray-100">
               <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
                 <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
@@ -121,7 +126,6 @@ const SearchableDropdown = ({
               </div>
             </div>
 
-            {/* Options List */}
             <div className="max-h-52 overflow-y-auto">
               {filtered.length > 0 ? (
                 filtered.map((opt, i) => {
@@ -133,18 +137,23 @@ const SearchableDropdown = ({
                       type="button"
                       onClick={() => handleSelect(opt)}
                       className={`w-full text-left px-3 py-2.5 text-sm flex items-center gap-2 transition-colors
-                        ${isSelected
-                          ? "bg-[#e84825]/8 text-[#e84825] font-medium"
-                          : "text-gray-700 hover:bg-gray-50"
+                        ${
+                          isSelected
+                            ? "bg-[#e84825]/8 text-[#e84825] font-medium"
+                            : "text-gray-700 hover:bg-gray-50"
                         }
                       `}
                     >
                       {opt.flag && (
-                        <span className="text-base leading-none">{opt.flag}</span>
+                        <span className="text-base leading-none">
+                          {opt.flag}
+                        </span>
                       )}
                       <span className="truncate">{opt[displayKey]}</span>
                       {isSelected && (
-                        <span className="ml-auto text-[#e84825] text-xs">✓</span>
+                        <span className="ml-auto text-[#e84825] text-xs">
+                          ✓
+                        </span>
                       )}
                     </button>
                   );
@@ -169,6 +178,14 @@ const AddressForm = () => {
 
   const { totalPrice } = useSelector((state) => state.pagecart);
   const { loading } = useSelector((state) => state.address);
+
+  // ✅ Fees from shared utility — consistent with CartPage & Payment
+  const {
+    deliveryFee: DELIVERY_FEE,
+    platformFee: PLATFORM_FEE,
+    packingCharge: PACKING,
+    grandTotal: GRAND_TOTAL,
+  } = calcFees(totalPrice);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -225,11 +242,9 @@ const AddressForm = () => {
     setFormData((prev) => ({ ...prev, city: cityName || "" }));
   };
 
-  // City as string options for SearchableDropdown
   const cityOptions = allCities.map((c) => ({ name: c.name }));
 
   useEffect(() => {
-    // If state selected but no cities from library → switch to manual input
     if (selectedStateCode && allCities.length === 0) {
       setCityManual(true);
     } else {
@@ -263,11 +278,6 @@ const AddressForm = () => {
       navigate("/payment");
     }
   };
-
-  const DELIVERY_FEE = totalPrice > 499 ? 0 : totalPrice > 0 ? 40 : 0;
-  const PLATFORM_FEE = 10;
-  const PACKING = 20;
-  const GRAND_TOTAL = totalPrice + DELIVERY_FEE + PLATFORM_FEE + PACKING;
 
   const inputStyle =
     "w-full bg-white border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-[#e84825] focus:ring-2 focus:ring-[#e84825]/10 transition-all placeholder:text-gray-300 autofill-custom";
@@ -306,7 +316,6 @@ const AddressForm = () => {
             </div>
 
             <div className="space-y-4">
-              {/* Name Row */}
               <div className="flex gap-4">
                 <input
                   required
@@ -328,7 +337,6 @@ const AddressForm = () => {
                 />
               </div>
 
-              {/* Email */}
               <input
                 required
                 name="email"
@@ -339,7 +347,6 @@ const AddressForm = () => {
                 className={inputStyle}
               />
 
-              {/* Street */}
               <input
                 required
                 name="street"
@@ -350,7 +357,6 @@ const AddressForm = () => {
                 className={inputStyle}
               />
 
-              {/* Country */}
               <SearchableDropdown
                 placeholder="Select Country"
                 options={allCountries}
@@ -360,7 +366,6 @@ const AddressForm = () => {
                 valueKey="isoCode"
               />
 
-              {/* State + City Row */}
               <div className="flex gap-4">
                 <SearchableDropdown
                   placeholder="Select State"
@@ -395,7 +400,6 @@ const AddressForm = () => {
                 )}
               </div>
 
-              {/* Zip Code */}
               <input
                 required
                 name="zipCode"
@@ -406,7 +410,6 @@ const AddressForm = () => {
                 className={inputStyle}
               />
 
-              {/* Phone */}
               <input
                 required
                 name="phone"

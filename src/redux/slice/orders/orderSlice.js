@@ -20,16 +20,10 @@ export const fetchMyOrders = createAsyncThunk(
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const orders = response.data.orders;
-
-      if (!orders || orders.length === 0) {
-        toast.info("You have no orders yet.");
-      } else {
-        toast.success(`${orders.length} order(s) loaded successfully.`);
-      }
 
       return orders;
     } catch (error) {
@@ -40,7 +34,7 @@ export const fetchMyOrders = createAsyncThunk(
       toast.error(`Error: ${message}`);
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 const ordersSlice = createSlice({
