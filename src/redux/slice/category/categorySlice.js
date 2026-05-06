@@ -2,12 +2,15 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
+// Environment variable ka istemal karte hue API URL set kiya gaya hai
+const API_URL = `${import.meta.env.VITE_API_URL}/categories/getall`;
+
 // API fetch thunk
 export const fetchCategories = createAsyncThunk(
   'categories/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('https://foodwebbe.onrender.com/api/categories/getall');
+      const response = await axios.get(API_URL);
       if (response.data.success) {
         // toast.success(response.data.message); // Optional: silent fetch ke liye comment kar sakte hain
         return response.data.categories;

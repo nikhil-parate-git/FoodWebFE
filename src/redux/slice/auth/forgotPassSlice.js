@@ -2,7 +2,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const BASE_URL = "https://foodwebbe.onrender.com/api/auth";
+// Using the environment variable and adding the /auth suffix
+const BASE_URL = `${import.meta.env.VITE_API_URL}/auth`;
 
 // Thunk for Forgot Password
 export const forgotPassword = createAsyncThunk(
@@ -28,8 +29,9 @@ export const forgotPassword = createAsyncThunk(
       toast.error(msg);
       return rejectWithValue(msg);
     }
-  },
+  }
 );
+
 // Thunk for Reset Password
 export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
@@ -43,7 +45,7 @@ export const resetPassword = createAsyncThunk(
       toast.error(msg);
       return rejectWithValue(msg);
     }
-  },
+  }
 );
 
 const authSlice = createSlice({

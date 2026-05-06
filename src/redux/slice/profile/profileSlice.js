@@ -2,7 +2,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const API_URL = "https://foodwebbe.onrender.com/api/auth";
+// Environment variable ka use karte hue API URL set kiya gaya hai
+const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
 
 const getHeaders = () => ({
   headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -26,7 +27,7 @@ export const logoutUser = createAsyncThunk(
     try {
       await axios.post(`${API_URL}/userlogout`, {}, getHeaders());
       localStorage.removeItem("token");
-      toast.success("Logout Successful",{ autoClose: 2000 });
+      toast.success("Logout Successful", { autoClose: 2000 });
       return null;
     } catch (error) {
       localStorage.removeItem("token");

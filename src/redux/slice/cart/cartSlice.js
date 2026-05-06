@@ -2,7 +2,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const BASE_URL = "https://foodwebbe.onrender.com/api/cart";
+// Environment variable ka use karte hue BASE_URL set kiya gaya hai
+const BASE_URL = `${import.meta.env.VITE_API_URL}/cart`;
 
 const getHeaders = () => ({
   headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

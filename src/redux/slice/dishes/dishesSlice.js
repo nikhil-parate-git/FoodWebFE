@@ -2,12 +2,15 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+// Environment variable ka use karte hue Base URL set kiya gaya hai
+const BASE_URL = `${import.meta.env.VITE_API_URL}/dishes`;
+
 // 1. Fetch All Dishes
 export const fetchDishes = createAsyncThunk(
   "dishes/fetch",
   async (page = 1, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`https://foodwebbe.onrender.com/api/dishes/getall?page=${page}`);
+      const response = await axios.get(`${BASE_URL}/getall?page=${page}`);
       if (response.data.success) return response.data;
       return rejectWithValue(response.data.message);
     } catch (error) {
@@ -18,12 +21,12 @@ export const fetchDishes = createAsyncThunk(
   }
 );
 
-// 2. Fetch Dishes by Category ID (Aapki nayi API)
+// 2. Fetch Dishes by Category ID
 export const fetchDishesByCategory = createAsyncThunk(
   "dishes/fetchByCategory",
   async ({ categoryId, page = 1 }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`https://foodwebbe.onrender.com/api/dishes/category/${categoryId}?page=${page}`);
+      const response = await axios.get(`${BASE_URL}/category/${categoryId}?page=${page}`);
       if (response.data.success) return response.data;
       return rejectWithValue(response.data.message);
     } catch (error) {

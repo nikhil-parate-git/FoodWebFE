@@ -2,8 +2,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-// API URL
-const BASE_URL = "https://foodwebbe.onrender.com/api/auth/verify-otp";
+// Environment variable ka istemal karte hue BASE_URL set kiya gaya hai
+const BASE_URL = `${import.meta.env.VITE_API_URL}/auth/verify-otp`;
 
 // Async Thunk for OTP Verification
 export const verifyOtpAction = createAsyncThunk(
@@ -15,7 +15,7 @@ export const verifyOtpAction = createAsyncThunk(
       if (response.data.success) {
         // Token localstorage mein save karna
         localStorage.setItem("token", response.data.token);
-        toast.success(response.data.message || "Login Successful! 🍅",{ autoClose: 2000 });
+        toast.success(response.data.message || "Login Successful! 🍅", { autoClose: 2000 });
         return response.data;
       } else {
         toast.error(response.data.message || "Invalid OTP");

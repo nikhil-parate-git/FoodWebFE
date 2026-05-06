@@ -2,7 +2,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const API_URL = "https://foodwebbe.onrender.com/api/auth/register";
+// Environment variable ka use karte hue API URL set kiya gaya hai
+const API_URL = `${import.meta.env.VITE_API_URL}/auth/register`;
 
 // Async Thunk for Registration
 export const registerUser = createAsyncThunk(
