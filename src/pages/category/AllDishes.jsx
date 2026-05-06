@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchDishes,
   fetchDishesByCategory,
-} from "../../redux/slice/dishes/DishesSlice";
+} from "../../redux/slice/dishes/dishesSlice";
 import { addToCartThunk } from "../../redux/slice/cart/cartSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import {
