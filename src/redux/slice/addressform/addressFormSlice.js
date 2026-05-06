@@ -4,20 +4,37 @@ import { toast } from "react-toastify";
 
 const API_URL = "https://foodwebbe.onrender.com/api/address/create";
 
-// Async Thunk for creating address
 export const createAddress = createAsyncThunk(
   "address/createAddress",
   async (addressData, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token"); // Local storage se token
+      // Common token key names — pehle inme se sahi wala dhundho
+      const token =
+        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("userToken") ||
+        (() => {
+          try {
+            return JSON.parse(localStorage.getItem("user"))?.token;
+          } catch {
+            return null;
+          }
+        })();
+
+      if (!token) {
+        toast.error("Please login to continue");
+        return rejectWithValue("No token found");
+      }
+
       const response = await axios.post(API_URL, addressData, {
         headers: {
-          token: token, // Headers me token pass kiya
+          token: token,           // agar backend expect karta hai: token: <value>
+          Authorization: `Bearer ${token}`, // agar backend expect karta hai: Bearer <value>
         },
       });
 
       if (response.data.success) {
-        toast.success("Address saved successfully!",{autoClose:1000});
+        toast.success("Address saved successfully!", { autoClose: 1000 });
         return response.data.address;
       } else {
         toast.error(response.data.message || "Something went wrong");
@@ -43,6 +60,7 @@ const addressSlice = createSlice({
     builder
       .addCase(createAddress.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(createAddress.fulfilled, (state, action) => {
         state.loading = false;

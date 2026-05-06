@@ -8,6 +8,8 @@ import categoryReducer from "../slice/category/categorySlice";
 import dishReducer from "../slice/dishes/dishesSlice";
 import pagecartReducer from "../slice/cart/cartSlice";
 import addressReducer from "../slice/addressform/addressFormSlice";
+import paymentReducer from "../slice/payment/paymentSlice";
+import ordersReducer from "../slice/orders/orderSlice";
 
 export const store = configureStore({
   reducer: {
@@ -20,5 +22,7 @@ export const store = configureStore({
     dishes: dishReducer,
     pagecart: pagecartReducer,
     address: addressReducer,
+    payment: paymentReducer,
+     orders: ordersReducer,
   },
 });
