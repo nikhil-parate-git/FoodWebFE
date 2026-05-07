@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-// Environment variable ka use karte hue API URL set kiya gaya hai
 const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
 
 const getHeaders = () => ({
@@ -18,7 +17,27 @@ export const getProfile = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.message);
     }
-  }
+  },
+);
+
+export const updateProfile = createAsyncThunk(
+  "profile/updateProfile",
+  async (formData, thunkAPI) => {
+    try {
+      const response = await axios.put(
+        `${API_URL}/updateprofile`,
+        formData,
+        getHeaders(),
+      );
+      toast.success("Profile updated successfully", { autoClose: 2000 });
+      return response.data;
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Update failed", {
+        autoClose: 2000,
+      });
+      return thunkAPI.rejectWithValue(error.response?.data?.message);
+    }
+  },
 );
 
 export const logoutUser = createAsyncThunk(
@@ -33,7 +52,7 @@ export const logoutUser = createAsyncThunk(
       localStorage.removeItem("token");
       return thunkAPI.rejectWithValue("Logout failed");
     }
-  }
+  },
 );
 
 const profileSlice = createSlice({
@@ -42,18 +61,40 @@ const profileSlice = createSlice({
     user: null,
     token: localStorage.getItem("token") || null,
     loading: false,
+    updating: false,
   },
   reducers: {
-    // 🔥 IMPORTANT: login ke baad ye call hoga
     setToken: (state, action) => {
       state.token = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
+
+      .addCase(getProfile.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(getProfile.fulfilled, (state, action) => {
+        state.loading = false;
         state.user = action.payload.user;
       })
+      .addCase(getProfile.rejected, (state) => {
+        state.loading = false;
+      })
+
+      // updateProfile
+      .addCase(updateProfile.pending, (state) => {
+        state.updating = true;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.updating = false;
+        state.user = action.payload.user;
+      })
+      .addCase(updateProfile.rejected, (state) => {
+        state.updating = false;
+      })
+
+      // logoutUser
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.token = null;

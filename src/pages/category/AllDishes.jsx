@@ -277,8 +277,6 @@ const AllDishes = ({ activeCategory }) => {
             <AnimatePresence mode="popLayout">
               {filteredAndSortedDishes.map((dish) => {
                 const inCart = getCartQty(dish._id) > 0;
-                const isWishlisted = wishlist.includes(dish._id);
-                const isHovered = hoveredDish === dish._id;
 
                 return (
                   <motion.div
@@ -302,23 +300,7 @@ const AllDishes = ({ activeCategory }) => {
                         />
 
                         {/* Premium Overlays */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                        {/* Quick Actions */}
-                        <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-                          <button
-                            onClick={() => toggleWishlist(dish._id)}
-                            className="w-9 h-9 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-                          >
-                            <Heart
-                              className={`w-4 h-4 transition-colors ${
-                                isWishlisted
-                                  ? "fill-red-500 text-red-500"
-                                  : "text-gray-600 hover:text-red-500"
-                              }`}
-                            />
-                          </button>
-                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                         {/* Add to Cart Button */}
                         <motion.button
