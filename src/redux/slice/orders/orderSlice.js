@@ -2,6 +2,9 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+// Environment variable ka upyog karke API endpoint set kiya
+const API_URL = `${import.meta.env.VITE_API_URL}/payment/my-orders`;
+
 // Async thunk to fetch orders
 export const fetchMyOrders = createAsyncThunk(
   "orders/fetchMyOrders",
@@ -14,18 +17,13 @@ export const fetchMyOrders = createAsyncThunk(
         return rejectWithValue("No token found");
       }
 
-      const response = await axios.get(
-        "https://foodwebbe.onrender.com/api/payment/my-orders",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const response = await axios.get(API_URL, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
-      const orders = response.data.orders;
-
-      return orders;
+      return response.data.orders;
     } catch (error) {
       const message =
         error.response?.data?.message ||

@@ -2,13 +2,14 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const API_URL = "https://foodwebbe.onrender.com/api/address/create";
+// Environment variable ka upyog karke base path set kiya
+const API_URL = `${import.meta.env.VITE_API_URL}/address/create`;
 
 export const createAddress = createAsyncThunk(
   "address/createAddress",
   async (addressData, { rejectWithValue }) => {
     try {
-      // Common token key names — pehle inme se sahi wala dhundho
+      // Token nikalne ki koshish
       const token =
         localStorage.getItem("token") ||
         localStorage.getItem("authToken") ||
@@ -28,8 +29,8 @@ export const createAddress = createAsyncThunk(
 
       const response = await axios.post(API_URL, addressData, {
         headers: {
-          token: token,           // agar backend expect karta hai: token: <value>
-          Authorization: `Bearer ${token}`, // agar backend expect karta hai: Bearer <value>
+          token: token,           // Agar backend custom header mangta hai
+          Authorization: `Bearer ${token}`, // Standard Bearer token
         },
       });
 

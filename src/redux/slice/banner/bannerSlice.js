@@ -1,21 +1,24 @@
-// bannerSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const API_URL = "https://foodwebbe.onrender.com/api/banners/all";
-const BASE_IMAGE_URL = "https://foodwebbe.onrender.com"; // Assuming images are hosted on the same domain
+// Environment variables ka use karke URLs set kiye
+const API_URL = `${import.meta.env.VITE_API_URL}/banners/all`;
+const BASE_IMAGE_URL = import.meta.env.VITE_IMAGE_URL;
 
 export const fetchBanners = createAsyncThunk(
   "banners/fetchBanners",
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(API_URL);
-
       return response.data.banners;
     } catch (error) {
-      toast.error(error.message || "Failed to fetch banners");
-      return rejectWithValue(error.message);
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch banners";
+      toast.error(message);
+      return rejectWithValue(message);
     }
   },
 );
@@ -38,11 +41,11 @@ const bannerSlice = createSlice({
         // Mapping API data to match your UI structure
         state.items = action.payload.map((item) => ({
           id: item._id,
-          image: `${BASE_IMAGE_URL}${item.image}`,
+          image: `${BASE_IMAGE_URL}${item.image}`, // Dynamic image URL
           tag: item.bannerTag,
           title: item.bannerTitle,
           desc: item.description,
-          btn: "Order Now", // Default button text
+          btn: "Order Now",
         }));
       })
       .addCase(fetchBanners.rejected, (state, action) => {
