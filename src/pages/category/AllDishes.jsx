@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, memo, useCallback} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchDishes,
@@ -11,24 +11,147 @@ import {
   Star,
   Clock,
   Flame,
-  Heart,
   Search,
   X,
   Filter,
 } from "lucide-react";
 
+// ─── Animation variants (component ke bahar — re-render pe recreate nahi hoga) ───
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+const SkeletonLoader = memo(() => (
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+      {[...Array(8)].map((_, i) => (
+        <div key={i} className="animate-pulse">
+          <div className="bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl overflow-hidden">
+            <div className="w-full h-56 bg-gradient-to-r from-gray-200 to-gray-100" />
+            <div className="p-5 space-y-3">
+              <div className="h-5 bg-gray-200 rounded-lg w-3/4" />
+              <div className="h-3 bg-gray-100 rounded w-full" />
+              <div className="h-3 bg-gray-100 rounded w-2/3" />
+              <div className="flex justify-between items-center pt-2">
+                <div className="h-6 bg-gray-200 rounded w-1/4" />
+                <div className="h-8 bg-gray-200 rounded-full w-8" />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+));
+
+// ─── Single Dish Card ─────────────────────────────────────────────────────────
+const DishCard = memo(({ dish, inCart, cartQty, cartLoading, onAddClick, searchTerm }) => {
+  return (
+    <motion.div
+      key={dish._id}
+      variants={itemVariants}
+      layout
+      className="group relative"
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-[#e84825]/0 to-[#e84825]/0 rounded-2xl transition-all duration-300 group-hover:shadow-2xl" />
+
+      <div className="relative bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 group-hover:-translate-y-2">
+        {/* Image */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50">
+          <img
+            src={dish.image}
+            alt={dish.name}
+            className="w-full h-56 object-cover transition-transform duration-700 group-hover:scale-110"
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => onAddClick(dish._id)}
+            disabled={cartLoading}
+            className={`absolute bottom-4 right-4 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 ${
+              inCart
+                ? "bg-[#e84825] text-white w-10 h-10"
+                : "bg-white text-[#e84825] w-10 h-10 hover:w-28 hover:bg-[#e84825] hover:text-white group/btn"
+            }`}
+          >
+            {inCart ? (
+              <ShoppingBag className="w-4 h-4" />
+            ) : (
+              <>
+                <span className="text-xl font-bold leading-none group-hover/btn:hidden">+</span>
+                <span className="hidden group-hover/btn:inline text-xs font-semibold whitespace-nowrap">
+                  Add to Cart
+                </span>
+              </>
+            )}
+          </motion.button>
+        </div>
+
+        {/* Content */}
+        <div className="p-5 space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="text-base font-bold text-gray-900 leading-tight line-clamp-1 flex-1">
+              {dish.name}
+            </h3>
+            <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg shrink-0">
+              <Star className="w-3.5 h-3.5 text-green-600 fill-green-600" />
+              <span className="text-green-700 text-xs font-semibold">
+                {dish.rating || "4.5"}
+              </span>
+            </div>
+          </div>
+
+          <p className="text-gray-500 text-xs leading-relaxed line-clamp-2 min-h-[2.5rem]">
+            {dish.description || "Delicious dish prepared with fresh ingredients and authentic spices."}
+          </p>
+
+          {searchTerm && dish.description?.toLowerCase().includes(searchTerm.toLowerCase()) && (
+            <div className="bg-yellow-50 text-yellow-700 text-[10px] px-2 py-0.5 rounded-full inline-block">
+              Matches your search
+            </div>
+          )}
+
+          <div className="flex items-center justify-between pt-2 border-t border-gray-50">
+            <div className="space-y-0.5">
+              <span className="text-xl font-extrabold text-gray-900">₹{dish.price}</span>
+              {dish.originalPrice && (
+                <span className="text-xs text-gray-400 line-through ml-2">
+                  ₹{dish.originalPrice}
+                </span>
+              )}
+            </div>
+            {inCart && (
+              <div className="bg-green-50 px-2 py-1 rounded-lg">
+                <span className="text-green-700 text-xs font-semibold">{cartQty} in cart</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+});
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 const AllDishes = ({ activeCategory }) => {
   const dispatch = useDispatch();
-  const [hoveredDish, setHoveredDish] = useState(null);
   const [wishlist, setWishlist] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [sortBy, setSortBy] = useState("default");
 
   const { items: dishes, loading } = useSelector((state) => state.dishes);
-  const { items: cartItems, loading: cartLoading } = useSelector(
-    (state) => state.pagecart,
-  );
+  const { items: cartItems, loading: cartLoading } = useSelector((state) => state.pagecart);
 
   useEffect(() => {
     const catId = activeCategory?.id || activeCategory?._id || null;
@@ -37,111 +160,50 @@ const AllDishes = ({ activeCategory }) => {
     } else {
       dispatch(fetchDishes());
     }
-    // Reset search when category changes
-
     setSortBy("default");
   }, [dispatch, activeCategory]);
 
-  const getCartQty = (dishId) => {
-    const found = cartItems?.find((i) => i.dish?._id === dishId);
-    return found?.quantity || 0;
-  };
+  // useCallback — har render pe naya function nahi banega
+  const getCartQty = useCallback(
+    (dishId) => cartItems?.find((i) => i.dish?._id === dishId)?.quantity || 0,
+    [cartItems]
+  );
 
-  const handleAddClick = (dishId) => {
-    if (!cartLoading) {
-      dispatch(addToCartThunk({ dishId, quantity: 1 }));
-    }
-  };
+  const handleAddClick = useCallback(
+    (dishId) => {
+      if (!cartLoading) dispatch(addToCartThunk({ dishId, quantity: 1 }));
+    },
+    [dispatch, cartLoading]
+  );
 
-  const toggleWishlist = (dishId) => {
-    setWishlist((prev) =>
-      prev.includes(dishId)
-        ? prev.filter((id) => id !== dishId)
-        : [...prev, dishId],
-    );
-  };
+  const clearSearch = useCallback(() => {
+    setSearchTerm("");
+    setShowSearch(false);
+  }, []);
 
-  // Filter and search dishes (case-insensitive)
   const filteredAndSortedDishes = useMemo(() => {
     let filtered = dishes;
 
     if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase().trim();
-      filtered = dishes.filter((dish) => {
-        return (
-          dish.name?.toLowerCase().includes(searchLower) ||
-          dish.description?.toLowerCase().includes(searchLower) ||
-          // ✅ category string ya object dono handle karo
-          (typeof dish.category === "string" &&
-            dish.category.toLowerCase().includes(searchLower)) ||
-          (typeof dish.category?.name === "string" &&
-            dish.category.name.toLowerCase().includes(searchLower))
-        );
-      });
-    }
-
-    if (sortBy === "price_low") {
-      filtered = [...filtered].sort((a, b) => a.price - b.price);
-    } else if (sortBy === "price_high") {
-      filtered = [...filtered].sort((a, b) => b.price - a.price);
-    } else if (sortBy === "rating") {
-      filtered = [...filtered].sort(
-        (a, b) => (b.rating || 0) - (a.rating || 0),
+      filtered = dishes.filter((dish) =>
+        dish.name?.toLowerCase().includes(searchLower) ||
+        dish.description?.toLowerCase().includes(searchLower) ||
+        (typeof dish.category === "string" && dish.category.toLowerCase().includes(searchLower)) ||
+        (typeof dish.category?.name === "string" && dish.category.name.toLowerCase().includes(searchLower))
       );
     }
 
+    if (sortBy === "price_low") return [...filtered].sort((a, b) => a.price - b.price);
+    if (sortBy === "price_high") return [...filtered].sort((a, b) => b.price - a.price);
+    if (sortBy === "rating") return [...filtered].sort((a, b) => (b.rating || 0) - (a.rating || 0));
     return filtered;
   }, [dishes, searchTerm, sortBy]);
 
-  const clearSearch = () => {
-    setSearchTerm("");
-    setShowSearch(false);
-  };
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
-
-  // Skeleton Loader
-  const SkeletonLoader = () => (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-        {[...Array(8)].map((_, i) => (
-          <div key={i} className="animate-pulse">
-            <div className="bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl overflow-hidden">
-              <div className="w-full h-56 bg-gradient-to-r from-gray-200 to-gray-100" />
-              <div className="p-5 space-y-3">
-                <div className="h-5 bg-gray-200 rounded-lg w-3/4" />
-                <div className="h-3 bg-gray-100 rounded w-full" />
-                <div className="h-3 bg-gray-100 rounded w-2/3" />
-                <div className="flex justify-between items-center pt-2">
-                  <div className="h-6 bg-gray-200 rounded w-1/4" />
-                  <div className="h-8 bg-gray-200 rounded-full w-8" />
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
   return (
-    <div className=" to-gray-50/50">
+    <div className="to-gray-50/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        {/* Premium Section Header */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -156,10 +218,7 @@ const AllDishes = ({ activeCategory }) => {
             </div>
             <div className="flex items-center gap-3">
               <p className="text-sm text-gray-500">
-                <span className="font-semibold text-[#e84825]">
-                  {filteredAndSortedDishes.length}
-                </span>{" "}
-                items available
+                <span className="font-semibold text-[#e84825]">{filteredAndSortedDishes.length}</span> items available
               </p>
               <div className="flex items-center gap-1.5 text-xs text-gray-400">
                 <Clock className="w-3.5 h-3.5" />
@@ -169,7 +228,6 @@ const AllDishes = ({ activeCategory }) => {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Search Toggle Button */}
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowSearch(!showSearch)}
@@ -181,7 +239,6 @@ const AllDishes = ({ activeCategory }) => {
               </span>
             </motion.button>
 
-            {/* Sort Dropdown */}
             <div className="relative group">
               <button className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-100 shadow-sm hover:bg-white transition-all">
                 <Filter className="w-4 h-4 text-gray-600" />
@@ -193,38 +250,26 @@ const AllDishes = ({ activeCategory }) => {
                 </span>
               </button>
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                <button
-                  onClick={() => setSortBy("default")}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 first:rounded-t-xl"
-                >
-                  Default
-                </button>
-                <button
-                  onClick={() => setSortBy("price_low")}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
-                >
-                  Price: Low to High
-                </button>
-                <button
-                  onClick={() => setSortBy("price_high")}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
-                >
-                  Price: High to Low
-                </button>
-                <button
-                  onClick={() => setSortBy("rating")}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 rounded-b-xl"
-                >
-                  Top Rated
-                </button>
+                {[
+                  { val: "default", label: "Default" },
+                  { val: "price_low", label: "Price: Low to High" },
+                  { val: "price_high", label: "Price: High to Low" },
+                  { val: "rating", label: "Top Rated" },
+                ].map(({ val, label }) => (
+                  <button
+                    key={val}
+                    onClick={() => setSortBy(val)}
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 first:rounded-t-xl last:rounded-b-xl"
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
             </div>
 
             <div className="hidden sm:flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-100 shadow-sm">
               <Flame className="w-4 h-4 text-orange-500" />
-              <span className="text-xs font-medium text-gray-600">
-                Trending now
-              </span>
+              <span className="text-xs font-medium text-gray-600">Trending now</span>
             </div>
           </div>
         </motion.div>
@@ -276,148 +321,46 @@ const AllDishes = ({ activeCategory }) => {
           >
             <AnimatePresence mode="popLayout">
               {filteredAndSortedDishes.map((dish) => {
-                const inCart = getCartQty(dish._id) > 0;
-
+                const cartQty = getCartQty(dish._id);
                 return (
-                  <motion.div
+                  <DishCard
                     key={dish._id}
-                    variants={itemVariants}
-                    layout
-                    onHoverStart={() => setHoveredDish(dish._id)}
-                    onHoverEnd={() => setHoveredDish(null)}
-                    className="group relative"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#e84825]/0 to-[#e84825]/0 rounded-2xl transition-all duration-300 group-hover:shadow-2xl" />
-
-                    <div className="relative bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 group-hover:-translate-y-2">
-                      {/* Image Section */}
-                      <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50">
-                        <img
-                          src={dish.image}
-                          alt={dish.name}
-                          className="w-full h-56 object-cover transition-transform duration-700 group-hover:scale-110"
-                          loading="lazy"
-                        />
-
-                        {/* Premium Overlays */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                        {/* Add to Cart Button */}
-                        <motion.button
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleAddClick(dish._id)}
-                          disabled={cartLoading}
-                          className={`absolute bottom-4 right-4 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 ${
-                            inCart
-                              ? "bg-[#e84825] text-white w-10 h-10"
-                              : "bg-white text-[#e84825] w-10 h-10 hover:w-28 hover:bg-[#e84825] hover:text-white group/btn"
-                          }`}
-                        >
-                          {inCart ? (
-                            <ShoppingBag className="w-4 h-4" />
-                          ) : (
-                            <>
-                              <span className="text-xl font-bold leading-none group-hover/btn:hidden">
-                                +
-                              </span>
-                              <span className="hidden group-hover/btn:inline text-xs font-semibold whitespace-nowrap">
-                                Add to Cart
-                              </span>
-                            </>
-                          )}
-                        </motion.button>
-                      </div>
-
-                      {/* Content Section */}
-                      <div className="p-5 space-y-3">
-                        {/* Title & Rating */}
-                        <div className="flex items-start justify-between gap-3">
-                          <h3 className="text-base font-bold text-gray-900 leading-tight line-clamp-1 flex-1">
-                            {dish.name}
-                          </h3>
-                          <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg shrink-0">
-                            <Star className="w-3.5 h-3.5 text-green-600 fill-green-600" />
-                            <span className="text-green-700 text-xs font-semibold">
-                              {dish.rating || "4.5"}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Description */}
-                        <p className="text-gray-500 text-xs leading-relaxed line-clamp-2 min-h-[2.5rem]">
-                          {dish.description ||
-                            "Delicious dish prepared with fresh ingredients and authentic spices."}
-                        </p>
-
-                        {/* Highlight search term in description (optional) */}
-                        {searchTerm &&
-                          dish.description
-                            ?.toLowerCase()
-                            .includes(searchTerm.toLowerCase()) && (
-                            <div className="bg-yellow-50 text-yellow-700 text-[10px] px-2 py-0.5 rounded-full inline-block">
-                              🔍 Matches your search
-                            </div>
-                          )}
-
-                        {/* Price & Delivery */}
-                        <div className="flex items-center justify-between pt-2 border-t border-gray-50">
-                          <div className="space-y-0.5">
-                            <span className="text-xl font-extrabold text-gray-900">
-                              ₹{dish.price}
-                            </span>
-                            {dish.originalPrice && (
-                              <span className="text-xs text-gray-400 line-through ml-2">
-                                ₹{dish.originalPrice}
-                              </span>
-                            )}
-                          </div>
-
-                          {inCart && (
-                            <div className="bg-green-50 px-2 py-1 rounded-lg">
-                              <span className="text-green-700 text-xs font-semibold">
-                                {getCartQty(dish._id)} in cart
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
+                    dish={dish}
+                    inCart={cartQty > 0}
+                    cartQty={cartQty}
+                    cartLoading={cartLoading}
+                    onAddClick={handleAddClick}
+                    searchTerm={searchTerm}
+                  />
                 );
               })}
             </AnimatePresence>
           </motion.div>
         )}
 
-        {/* Empty State - No results found */}
-        {!loading &&
-          dishes.length > 0 &&
-          filteredAndSortedDishes.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-24 bg-white rounded-2xl border border-gray-100"
+        {/* Empty States */}
+        {!loading && dishes.length > 0 && filteredAndSortedDishes.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-24 bg-white rounded-2xl border border-gray-100"
+          >
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full mb-4">
+              <Search className="w-10 h-10 text-gray-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No matching dishes found</h3>
+            <p className="text-gray-500 max-w-sm mx-auto mb-6">
+              We couldn't find any dishes matching "{searchTerm}". Try searching with different keywords.
+            </p>
+            <button
+              onClick={clearSearch}
+              className="px-6 py-2 bg-[#e84825] text-white rounded-full text-sm font-semibold hover:bg-[#c73d1e] transition-colors"
             >
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full mb-4">
-                <Search className="w-10 h-10 text-gray-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                No matching dishes found
-              </h3>
-              <p className="text-gray-500 max-w-sm mx-auto mb-6">
-                We couldn't find any dishes matching "{searchTerm}". Try
-                searching with different keywords.
-              </p>
-              <button
-                onClick={clearSearch}
-                className="px-6 py-2 bg-[#e84825] text-white rounded-full text-sm font-semibold hover:bg-[#c73d1e] transition-colors"
-              >
-                Clear Search
-              </button>
-            </motion.div>
-          )}
+              Clear Search
+            </button>
+          </motion.div>
+        )}
 
-        {/* Empty State - No dishes at all */}
         {!loading && dishes.length === 0 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -427,12 +370,9 @@ const AllDishes = ({ activeCategory }) => {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full mb-4">
               <span className="text-4xl">🍽️</span>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              No dishes found
-            </h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No dishes found</h3>
             <p className="text-gray-500 max-w-sm mx-auto">
-              We couldn't find any dishes in this category. Try exploring other
-              categories.
+              We couldn't find any dishes in this category. Try exploring other categories.
             </p>
           </motion.div>
         )}

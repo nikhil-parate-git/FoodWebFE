@@ -10,7 +10,6 @@ const App = () => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.profile.token);
 
-  // ✅ Token hai toh cart fetch karo — refresh pe bhi kaam karega
   useEffect(() => {
     if (token) {
       dispatch(fetchCart());
