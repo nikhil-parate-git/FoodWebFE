@@ -2,9 +2,13 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-// Environment variables ka use karke URLs set kiye
 const API_URL = `${import.meta.env.VITE_API_URL}/banners/all`;
-const BASE_IMAGE_URL = import.meta.env.VITE_IMAGE_URL;
+
+
+const BASE_IMAGE_URL =
+  import.meta.env.VITE_IMAGE_URL ||
+  import.meta.env.VITE_API_URL?.replace(/\/api$/, "") ||
+  "http://localhost:5000";
 
 export const fetchBanners = createAsyncThunk(
   "banners/fetchBanners",
@@ -35,13 +39,16 @@ const bannerSlice = createSlice({
     builder
       .addCase(fetchBanners.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchBanners.fulfilled, (state, action) => {
         state.loading = false;
-        // Mapping API data to match your UI structure
         state.items = action.payload.map((item) => ({
           id: item._id,
-          image: `${BASE_IMAGE_URL}${item.image}`, // Dynamic image URL
+          // ── FIX 2: Agar image already full URL hai toh BASE_IMAGE_URL mat lagao ──
+          image: item.image?.startsWith("http")
+            ? item.image
+            : `${BASE_IMAGE_URL}${item.image}`,
           tag: item.bannerTag,
           title: item.bannerTitle,
           desc: item.description,

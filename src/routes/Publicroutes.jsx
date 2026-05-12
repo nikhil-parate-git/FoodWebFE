@@ -8,18 +8,22 @@ import GuestRoute from "../routes/GuestRoute";
 import Home from "../pages/home/Home";
 
 // Lazy load — baaki sab
-const MenuPage     = lazy(() => import("../pages/category/MenuPage"));
-const CartPage     = lazy(() => import("../context/CartPage"));
-const LoginPage    = lazy(() => import("../pages/auth/Login"));
-const SignupPage   = lazy(() => import("../pages/auth/Signup"));
-const AddressForm  = lazy(() => import("../context/AddressForm"));
-const Payment      = lazy(() => import("../context/Payment"));
-const Orders       = lazy(() => import("../pages/myorders/Orders"));
-const ForgotPass   = lazy(() => import("../pages/auth/ForgotPass"));
-const ResetPass    = lazy(() => import("../pages/auth/ResetPass"));
+const MenuPage = lazy(() => import("../pages/category/MenuPage"));
+const CartPage = lazy(() => import("../context/CartPage"));
+const LoginPage = lazy(() => import("../pages/auth/Login"));
+const SignupPage = lazy(() => import("../pages/auth/Signup"));
+const AddressForm = lazy(() => import("../context/AddressForm"));
+const Payment = lazy(() => import("../context/Payment"));
+const Orders = lazy(() => import("../pages/myorders/Orders"));
+const ForgotPass = lazy(() => import("../pages/auth/ForgotPass"));
+const ResetPass = lazy(() => import("../pages/auth/ResetPass"));
 const LoginSuccess = lazy(() => import("../pages/auth/LoginSuccess"));
-const LogOtp       = lazy(() => import("../pages/auth/LogOtp"));
-const Profile      = lazy(() => import("../pages/profile/Profile"));
+const LogOtp = lazy(() => import("../pages/auth/LogOtp"));
+const Profile = lazy(() => import("../pages/profile/Profile"));
+
+// New pages
+const About = lazy(() => import("../pages/aboutcontact/About"));
+const Contact = lazy(() => import("../pages/aboutcontact/Contact"));
 
 // Central fallback spinner
 const PageLoader = () => (
@@ -42,24 +46,117 @@ const Publicroutes = () => {
             </Suspense>
           }
         />
+        <Route
+          path="/about"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <About />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/contact"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <Contact />
+            </Suspense>
+          }
+        />
 
         {/* Guest routes */}
         <Route element={<GuestRoute />}>
-          <Route path="/login"            element={<Suspense fallback={<PageLoader />}><LoginPage /></Suspense>} />
-          <Route path="/signup"           element={<Suspense fallback={<PageLoader />}><SignupPage /></Suspense>} />
-          <Route path="/logotp"           element={<Suspense fallback={<PageLoader />}><LogOtp /></Suspense>} />
-          <Route path="/forgot-password"  element={<Suspense fallback={<PageLoader />}><ForgotPass /></Suspense>} />
-          <Route path="/reset-password"   element={<Suspense fallback={<PageLoader />}><ResetPass /></Suspense>} />
-          <Route path="/dashboard"        element={<Suspense fallback={<PageLoader />}><LoginSuccess /></Suspense>} />
+          <Route
+            path="/login"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <LoginPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <SignupPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/logotp"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <LogOtp />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <ForgotPass />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <ResetPass />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <LoginSuccess />
+              </Suspense>
+            }
+          />
         </Route>
 
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/cart"        element={<Suspense fallback={<PageLoader />}><CartPage /></Suspense>} />
-          <Route path="/addressform" element={<Suspense fallback={<PageLoader />}><AddressForm /></Suspense>} />
-          <Route path="/payment"     element={<Suspense fallback={<PageLoader />}><Payment /></Suspense>} />
-          <Route path="/orders"      element={<Suspense fallback={<PageLoader />}><Orders /></Suspense>} />
-          <Route path="/profile"     element={<Suspense fallback={<PageLoader />}><Profile /></Suspense>} />
+          <Route
+            path="/cart"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <CartPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/addressform"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <AddressForm />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/payment"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <Payment />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <Orders />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <Profile />
+              </Suspense>
+            }
+          />
         </Route>
       </Route>
     </Routes>

@@ -20,8 +20,13 @@ function useLazyImage(src) {
       setCurrentSrc(src);
       setLoaded(true);
     };
+    img.onerror = () => {
+      setCurrentSrc(src);
+      setLoaded(true);
+    };
     return () => {
       img.onload = null;
+      img.onerror = null;
     };
   }, [src]);
 
@@ -59,28 +64,24 @@ export default function Banner() {
   const [current, setCurrent] = useState(0);
   const [animating, setAnimating] = useState(false);
   const bannerRef = useRef(null);
-  const [inView, setInView] = useState(false);
 
   useEffect(() => {
     dispatch(fetchBanners());
   }, [dispatch]);
 
-  useEffect(() => {
-    const el = bannerRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setInView(true);
-      },
-      { threshold: 0.1 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  const currentImageUrl =
-    slides.length > 0 && inView ? slides[current]?.image : null;
+  const currentImageUrl = slides.length > 0 ? slides[current]?.image : null;
   const { currentSrc, loaded } = useLazyImage(currentImageUrl);
+
+  // Preload next image
+  useEffect(() => {
+    if (slides.length < 2) return;
+    const nextIndex = (current + 1) % slides.length;
+    const nextSrc = slides[nextIndex]?.image;
+    if (!nextSrc) return;
+    const img = new Image();
+    img.src = nextSrc;
+    return () => { img.src = ""; };
+  }, [current, slides]);
 
   const goTo = (index) => {
     if (animating || index === current) return;
@@ -95,14 +96,14 @@ export default function Banner() {
   const next = () => goTo((current + 1) % slides.length);
 
   useEffect(() => {
-    if (!inView || slides.length === 0) return;
+    if (slides.length === 0) return;
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
     }, 4000);
     return () => clearInterval(timer);
-  }, [inView, slides.length]);
+  }, [slides.length]);
 
-  if (loading || slides.length === 0) {
+  if (loading && slides.length === 0) {
     return (
       <div
         ref={bannerRef}
@@ -114,6 +115,8 @@ export default function Banner() {
     );
   }
 
+  if (!loading && slides.length === 0) return null;
+
   const slide = slides[current];
 
   return (
@@ -124,18 +127,24 @@ export default function Banner() {
     >
       {!loaded && <Skeleton />}
 
+      {/* ── BACKGROUND IMAGE — pura banner dikhega, koi crop nahi ── */}
       {currentSrc && (
         <div
-          className="absolute inset-0 bg-cover bg-center"
           style={{
+            position: "absolute",
+            inset: 0,
             backgroundImage: `url(${currentSrc})`,
+            backgroundSize: "100% 100%",
+            backgroundPosition: "center center",
+            backgroundRepeat: "no-repeat",
             opacity: loaded ? 1 : 0,
             transition: "opacity 0.5s ease",
           }}
         />
       )}
 
-      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+      {/* Dark overlay only on left side for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 to-transparent" />
 
       {/* ── CONTENT ── */}
       <div
@@ -168,19 +177,8 @@ export default function Banner() {
         onClick={prev}
         className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15 19l-7-7 7-7"
-          />
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
       </button>
 
@@ -189,14 +187,7 @@ export default function Banner() {
         onClick={next}
         className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center text-white"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2.5}
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>
       </button>
