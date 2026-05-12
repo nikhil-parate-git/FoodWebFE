@@ -14,9 +14,12 @@ import {
   Search,
   X,
   Filter,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
 } from "lucide-react";
 
-// ─── Animation variants (component ke bahar — re-render pe recreate nahi hoga) ───
+// ─── Animation variants ────────────────────────────────────────────────────────
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
@@ -27,7 +30,7 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
+// ─── Skeleton ──────────────────────────────────────────────────────────────────
 const SkeletonLoader = memo(() => (
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
@@ -51,7 +54,7 @@ const SkeletonLoader = memo(() => (
   </div>
 ));
 
-// ─── Single Dish Card ─────────────────────────────────────────────────────────
+// ─── Single Dish Card ──────────────────────────────────────────────────────────
 const DishCard = memo(({ dish, inCart, cartQty, cartLoading, onAddClick, searchTerm }) => {
   return (
     <motion.div
@@ -60,7 +63,7 @@ const DishCard = memo(({ dish, inCart, cartQty, cartLoading, onAddClick, searchT
       layout
       className="group relative"
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-[#e84825]/0 to-[#e84825]/0 rounded-2xl transition-all duration-300 group-hover:shadow-2xl" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#e84825]/0 to-[#e84825]/0 rounded-2xl transition-all duration-300 " />
 
       <div className="relative bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 group-hover:-translate-y-2">
         {/* Image */}
@@ -142,28 +145,58 @@ const DishCard = memo(({ dish, inCart, cartQty, cartLoading, onAddClick, searchT
   );
 });
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// ─── Main Component ────────────────────────────────────────────────────────────
 const AllDishes = ({ activeCategory }) => {
   const dispatch = useDispatch();
-  const [wishlist, setWishlist] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [sortBy, setSortBy] = useState("default");
+  // Track whether user has expanded beyond page 1
+  const [hasLoadedMore, setHasLoadedMore] = useState(false);
 
-  const { items: dishes, loading } = useSelector((state) => state.dishes);
+  const { items: dishes, loading, loadingMore, pagination } = useSelector((state) => state.dishes);
   const { items: cartItems, loading: cartLoading } = useSelector((state) => state.pagecart);
 
+  // Category/page change hone par fresh fetch (page 1)
   useEffect(() => {
     const catId = activeCategory?.id || activeCategory?._id || null;
     if (catId) {
-      dispatch(fetchDishesByCategory({ categoryId: catId }));
+      dispatch(fetchDishesByCategory({ categoryId: catId, page: 1 }));
     } else {
-      dispatch(fetchDishes());
+      dispatch(fetchDishes(1));
     }
     setSortBy("default");
+    setSearchTerm("");
+    setShowSearch(false);
+    setHasLoadedMore(false); // reset on category change
   }, [dispatch, activeCategory]);
 
-  // useCallback — har render pe naya function nahi banega
+  // "Show More" handler — next page fetch karta hai
+  const handleShowMore = useCallback(() => {
+    if (loadingMore) return;
+    const nextPage = (pagination?.currentPage || 1) + 1;
+    const catId = activeCategory?.id || activeCategory?._id || null;
+    if (catId) {
+      dispatch(fetchDishesByCategory({ categoryId: catId, page: nextPage }));
+    } else {
+      dispatch(fetchDishes(nextPage));
+    }
+    setHasLoadedMore(true);
+  }, [dispatch, activeCategory, pagination, loadingMore]);
+
+  // "Show Less" handler — page 1 pe wapas le jaata hai
+  const handleShowLess = useCallback(() => {
+    const catId = activeCategory?.id || activeCategory?._id || null;
+    if (catId) {
+      dispatch(fetchDishesByCategory({ categoryId: catId, page: 1 }));
+    } else {
+      dispatch(fetchDishes(1));
+    }
+    setHasLoadedMore(false);
+    // Smoothly scroll back to top of dish section
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [dispatch, activeCategory]);
+
   const getCartQty = useCallback(
     (dishId) => cartItems?.find((i) => i.dish?._id === dishId)?.quantity || 0,
     [cartItems]
@@ -200,6 +233,9 @@ const AllDishes = ({ activeCategory }) => {
     return filtered;
   }, [dishes, searchTerm, sortBy]);
 
+  // Kya aur pages bache hain?
+  const hasMore = pagination?.currentPage < pagination?.totalPages;
+
   return (
     <div className="to-gray-50/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
@@ -218,7 +254,11 @@ const AllDishes = ({ activeCategory }) => {
             </div>
             <div className="flex items-center gap-3">
               <p className="text-sm text-gray-500">
-                <span className="font-semibold text-[#e84825]">{filteredAndSortedDishes.length}</span> items available
+                <span className="font-semibold text-[#e84825]">{filteredAndSortedDishes.length}</span>
+                {pagination?.totalDishes > dishes.length && (
+                  <span className="text-gray-400"> of {pagination.totalDishes}</span>
+                )}
+                {" "}items available
               </p>
               <div className="flex items-center gap-1.5 text-xs text-gray-400">
                 <Clock className="w-3.5 h-3.5" />
@@ -313,29 +353,94 @@ const AllDishes = ({ activeCategory }) => {
         {loading ? (
           <SkeletonLoader />
         ) : (
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8"
-          >
-            <AnimatePresence mode="popLayout">
-              {filteredAndSortedDishes.map((dish) => {
-                const cartQty = getCartQty(dish._id);
-                return (
-                  <DishCard
-                    key={dish._id}
-                    dish={dish}
-                    inCart={cartQty > 0}
-                    cartQty={cartQty}
-                    cartLoading={cartLoading}
-                    onAddClick={handleAddClick}
-                    searchTerm={searchTerm}
-                  />
-                );
-              })}
-            </AnimatePresence>
-          </motion.div>
+          <>
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8"
+            >
+              <AnimatePresence mode="popLayout">
+                {filteredAndSortedDishes.map((dish) => {
+                  const cartQty = getCartQty(dish._id);
+                  return (
+                    <DishCard
+                      key={dish._id}
+                      dish={dish}
+                      inCart={cartQty > 0}
+                      cartQty={cartQty}
+                      cartLoading={cartLoading}
+                      onAddClick={handleAddClick}
+                      searchTerm={searchTerm}
+                    />
+                  );
+                })}
+              </AnimatePresence>
+            </motion.div>
+
+            {/* ── Show More / Show Less Buttons ── */}
+            {!searchTerm && (hasMore || hasLoadedMore) && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center gap-3 mt-12"
+              >
+               
+
+                <div className="flex items-center gap-3">
+                  {/* Show More — only when more pages exist */}
+                  {hasMore && (
+                    <motion.button
+                      whileTap={{ scale: 0.97 }}
+                      whileHover={{ scale: 1.02 }}
+                      onClick={handleShowMore}
+                      disabled={loadingMore}
+                      className="flex items-center gap-2 px-8 py-3 bg-white border-2 border-[#e84825] text-[#e84825] rounded-full font-semibold text-sm hover:bg-[#e84825] hover:text-white transition-all duration-300 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {loadingMore ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Loading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-4 h-4" />
+                          <span>Show More</span>
+                        </>
+                      )}
+                    </motion.button>
+                  )}
+
+                  {/* Show Less — only when user has loaded extra pages */}
+                  {hasLoadedMore && (
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      whileTap={{ scale: 0.97 }}
+                      whileHover={{ scale: 1.02 }}
+                      onClick={handleShowLess}
+                      disabled={loadingMore}
+                      className="flex items-center gap-2 px-8 py-3 bg-gray-50 border-2 border-gray-200 text-gray-600 rounded-full font-semibold text-sm hover:bg-gray-100 hover:border-gray-300 transition-all duration-300 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      <ChevronUp className="w-4 h-4" />
+                      <span>Show Less</span>
+                    </motion.button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* All dishes loaded message */}
+            {!hasMore && dishes.length > 0 && pagination?.totalPages > 1 && !searchTerm && !hasLoadedMore && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center text-sm text-gray-400 mt-10"
+              >
+                ✓ All {pagination.totalDishes} dishes loaded
+              </motion.p>
+            )}
+          </>
         )}
 
         {/* Empty States */}
