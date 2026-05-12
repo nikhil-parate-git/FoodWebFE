@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, memo, useCallback} from "react";
+import React, { useEffect, useState, useMemo, memo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchDishes,
@@ -55,95 +55,107 @@ const SkeletonLoader = memo(() => (
 ));
 
 // ─── Single Dish Card ──────────────────────────────────────────────────────────
-const DishCard = memo(({ dish, inCart, cartQty, cartLoading, onAddClick, searchTerm }) => {
-  return (
-    <motion.div
-      key={dish._id}
-      variants={itemVariants}
-      layout
-      className="group relative"
-    >
-      <div className="absolute inset-0 bg-gradient-to-r from-[#e84825]/0 to-[#e84825]/0 rounded-2xl transition-all duration-300 " />
+const DishCard = memo(
+  ({ dish, inCart, cartQty, cartLoading, onAddClick, searchTerm }) => {
+    return (
+      <motion.div
+        key={dish._id}
+        variants={itemVariants}
+        layout
+        className="group relative"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-[#e84825]/0 to-[#e84825]/0 rounded-2xl transition-all duration-300 " />
 
-      <div className="relative bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 group-hover:-translate-y-2">
-        {/* Image */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50">
-          <img
-            src={dish.image}
-            alt={dish.name}
-            className="w-full h-56 object-cover transition-transform duration-700 group-hover:scale-110"
-            loading="lazy"
-            decoding="async"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="relative bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 group-hover:-translate-y-2">
+          {/* Image */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50">
+            <img
+              src={dish.image}
+              alt={dish.name}
+              className="w-full h-56 object-cover transition-transform duration-700 group-hover:scale-110"
+              loading="lazy"
+              decoding="async"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => onAddClick(dish._id)}
-            disabled={cartLoading}
-            className={`absolute bottom-4 right-4 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 ${
-              inCart
-                ? "bg-[#e84825] text-white w-10 h-10"
-                : "bg-white text-[#e84825] w-10 h-10 hover:w-28 hover:bg-[#e84825] hover:text-white group/btn"
-            }`}
-          >
-            {inCart ? (
-              <ShoppingBag className="w-4 h-4" />
-            ) : (
-              <>
-                <span className="text-xl font-bold leading-none group-hover/btn:hidden">+</span>
-                <span className="hidden group-hover/btn:inline text-xs font-semibold whitespace-nowrap">
-                  Add to Cart
-                </span>
-              </>
-            )}
-          </motion.button>
-        </div>
-
-        {/* Content */}
-        <div className="p-5 space-y-3">
-          <div className="flex items-start justify-between gap-3">
-            <h3 className="text-base font-bold text-gray-900 leading-tight line-clamp-1 flex-1">
-              {dish.name}
-            </h3>
-            <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg shrink-0">
-              <Star className="w-3.5 h-3.5 text-green-600 fill-green-600" />
-              <span className="text-green-700 text-xs font-semibold">
-                {dish.rating || "4.5"}
-              </span>
-            </div>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => onAddClick(dish._id)}
+              disabled={cartLoading}
+              className={`absolute bottom-4 right-4 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 ${
+                inCart
+                  ? "bg-[#e84825] text-white w-10 h-10"
+                  : "bg-white text-[#e84825] w-10 h-10 hover:w-28 hover:bg-[#e84825] hover:text-white group/btn"
+              }`}
+            >
+              {inCart ? (
+                <ShoppingBag className="w-4 h-4" />
+              ) : (
+                <>
+                  <span className="text-xl font-bold leading-none group-hover/btn:hidden">
+                    +
+                  </span>
+                  <span className="hidden group-hover/btn:inline text-xs font-semibold whitespace-nowrap">
+                    Add to Cart
+                  </span>
+                </>
+              )}
+            </motion.button>
           </div>
 
-          <p className="text-gray-500 text-xs leading-relaxed line-clamp-2 min-h-[2.5rem]">
-            {dish.description || "Delicious dish prepared with fresh ingredients and authentic spices."}
-          </p>
-
-          {searchTerm && dish.description?.toLowerCase().includes(searchTerm.toLowerCase()) && (
-            <div className="bg-yellow-50 text-yellow-700 text-[10px] px-2 py-0.5 rounded-full inline-block">
-              Matches your search
-            </div>
-          )}
-
-          <div className="flex items-center justify-between pt-2 border-t border-gray-50">
-            <div className="space-y-0.5">
-              <span className="text-xl font-extrabold text-gray-900">₹{dish.price}</span>
-              {dish.originalPrice && (
-                <span className="text-xs text-gray-400 line-through ml-2">
-                  ₹{dish.originalPrice}
+          {/* Content */}
+          <div className="p-5 space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="text-base font-bold text-gray-900 leading-tight line-clamp-1 flex-1">
+                {dish.name}
+              </h3>
+              <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg shrink-0">
+                <Star className="w-3.5 h-3.5 text-green-600 fill-green-600" />
+                <span className="text-green-700 text-xs font-semibold">
+                  {dish.rating || "4.5"}
                 </span>
+              </div>
+            </div>
+
+            <p className="text-gray-500 text-xs leading-relaxed line-clamp-2 min-h-[2.5rem]">
+              {dish.description ||
+                "Delicious dish prepared with fresh ingredients and authentic spices."}
+            </p>
+
+            {searchTerm &&
+              dish.description
+                ?.toLowerCase()
+                .includes(searchTerm.toLowerCase()) && (
+                <div className="bg-yellow-50 text-yellow-700 text-[10px] px-2 py-0.5 rounded-full inline-block">
+                  Matches your search
+                </div>
+              )}
+
+            <div className="flex items-center justify-between pt-2 border-t border-gray-50">
+              <div className="space-y-0.5">
+                <span className="text-xl font-extrabold text-gray-900">
+                  ₹{dish.price}
+                </span>
+                {dish.originalPrice && (
+                  <span className="text-xs text-gray-400 line-through ml-2">
+                    ₹{dish.originalPrice}
+                  </span>
+                )}
+              </div>
+              {inCart && (
+                <div className="bg-green-50 px-2 py-1 rounded-lg">
+                  <span className="text-green-700 text-xs font-semibold">
+                    {cartQty} in cart
+                  </span>
+                </div>
               )}
             </div>
-            {inCart && (
-              <div className="bg-green-50 px-2 py-1 rounded-lg">
-                <span className="text-green-700 text-xs font-semibold">{cartQty} in cart</span>
-              </div>
-            )}
           </div>
         </div>
-      </div>
-    </motion.div>
-  );
-});
+      </motion.div>
+    );
+  },
+);
 
 // ─── Main Component ────────────────────────────────────────────────────────────
 const AllDishes = ({ activeCategory }) => {
@@ -154,8 +166,15 @@ const AllDishes = ({ activeCategory }) => {
   // Track whether user has expanded beyond page 1
   const [hasLoadedMore, setHasLoadedMore] = useState(false);
 
-  const { items: dishes, loading, loadingMore, pagination } = useSelector((state) => state.dishes);
-  const { items: cartItems, loading: cartLoading } = useSelector((state) => state.pagecart);
+  const {
+    items: dishes,
+    loading,
+    loadingMore,
+    pagination,
+  } = useSelector((state) => state.dishes);
+  const { items: cartItems, loading: cartLoading } = useSelector(
+    (state) => state.pagecart,
+  );
 
   // Category/page change hone par fresh fetch (page 1)
   useEffect(() => {
@@ -199,14 +218,14 @@ const AllDishes = ({ activeCategory }) => {
 
   const getCartQty = useCallback(
     (dishId) => cartItems?.find((i) => i.dish?._id === dishId)?.quantity || 0,
-    [cartItems]
+    [cartItems],
   );
 
   const handleAddClick = useCallback(
     (dishId) => {
       if (!cartLoading) dispatch(addToCartThunk({ dishId, quantity: 1 }));
     },
-    [dispatch, cartLoading]
+    [dispatch, cartLoading],
   );
 
   const clearSearch = useCallback(() => {
@@ -219,17 +238,23 @@ const AllDishes = ({ activeCategory }) => {
 
     if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase().trim();
-      filtered = dishes.filter((dish) =>
-        dish.name?.toLowerCase().includes(searchLower) ||
-        dish.description?.toLowerCase().includes(searchLower) ||
-        (typeof dish.category === "string" && dish.category.toLowerCase().includes(searchLower)) ||
-        (typeof dish.category?.name === "string" && dish.category.name.toLowerCase().includes(searchLower))
+      filtered = dishes.filter(
+        (dish) =>
+          dish.name?.toLowerCase().includes(searchLower) ||
+          dish.description?.toLowerCase().includes(searchLower) ||
+          (typeof dish.category === "string" &&
+            dish.category.toLowerCase().includes(searchLower)) ||
+          (typeof dish.category?.name === "string" &&
+            dish.category.name.toLowerCase().includes(searchLower)),
       );
     }
 
-    if (sortBy === "price_low") return [...filtered].sort((a, b) => a.price - b.price);
-    if (sortBy === "price_high") return [...filtered].sort((a, b) => b.price - a.price);
-    if (sortBy === "rating") return [...filtered].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    if (sortBy === "price_low")
+      return [...filtered].sort((a, b) => a.price - b.price);
+    if (sortBy === "price_high")
+      return [...filtered].sort((a, b) => b.price - a.price);
+    if (sortBy === "rating")
+      return [...filtered].sort((a, b) => (b.rating || 0) - (a.rating || 0));
     return filtered;
   }, [dishes, searchTerm, sortBy]);
 
@@ -251,19 +276,6 @@ const AllDishes = ({ activeCategory }) => {
               <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                 {activeCategory ? activeCategory.name : "All Dishes"}
               </h2>
-            </div>
-            <div className="flex items-center gap-3">
-              <p className="text-sm text-gray-500">
-                <span className="font-semibold text-[#e84825]">{filteredAndSortedDishes.length}</span>
-                {pagination?.totalDishes > dishes.length && (
-                  <span className="text-gray-400"> of {pagination.totalDishes}</span>
-                )}
-                {" "}items available
-              </p>
-              <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                <Clock className="w-3.5 h-3.5" />
-                <span>Freshly prepared</span>
-              </div>
             </div>
           </div>
 
@@ -309,7 +321,9 @@ const AllDishes = ({ activeCategory }) => {
 
             <div className="hidden sm:flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-100 shadow-sm">
               <Flame className="w-4 h-4 text-orange-500" />
-              <span className="text-xs font-medium text-gray-600">Trending now</span>
+              <span className="text-xs font-medium text-gray-600">
+                Trending now
+              </span>
             </div>
           </div>
         </motion.div>
@@ -385,8 +399,6 @@ const AllDishes = ({ activeCategory }) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex flex-col items-center gap-3 mt-12"
               >
-               
-
                 <div className="flex items-center gap-3">
                   {/* Show More — only when more pages exist */}
                   {hasMore && (
@@ -431,40 +443,49 @@ const AllDishes = ({ activeCategory }) => {
             )}
 
             {/* All dishes loaded message */}
-            {!hasMore && dishes.length > 0 && pagination?.totalPages > 1 && !searchTerm && !hasLoadedMore && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center text-sm text-gray-400 mt-10"
-              >
-                ✓ All {pagination.totalDishes} dishes loaded
-              </motion.p>
-            )}
+            {!hasMore &&
+              dishes.length > 0 &&
+              pagination?.totalPages > 1 &&
+              !searchTerm &&
+              !hasLoadedMore && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center text-sm text-gray-400 mt-10"
+                >
+                  ✓ All {pagination.totalDishes} dishes loaded
+                </motion.p>
+              )}
           </>
         )}
 
         {/* Empty States */}
-        {!loading && dishes.length > 0 && filteredAndSortedDishes.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-24 bg-white rounded-2xl border border-gray-100"
-          >
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full mb-4">
-              <Search className="w-10 h-10 text-gray-400" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No matching dishes found</h3>
-            <p className="text-gray-500 max-w-sm mx-auto mb-6">
-              We couldn't find any dishes matching "{searchTerm}". Try searching with different keywords.
-            </p>
-            <button
-              onClick={clearSearch}
-              className="px-6 py-2 bg-[#e84825] text-white rounded-full text-sm font-semibold hover:bg-[#c73d1e] transition-colors"
+        {!loading &&
+          dishes.length > 0 &&
+          filteredAndSortedDishes.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-24 bg-white rounded-2xl border border-gray-100"
             >
-              Clear Search
-            </button>
-          </motion.div>
-        )}
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full mb-4">
+                <Search className="w-10 h-10 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                No matching dishes found
+              </h3>
+              <p className="text-gray-500 max-w-sm mx-auto mb-6">
+                We couldn't find any dishes matching "{searchTerm}". Try
+                searching with different keywords.
+              </p>
+              <button
+                onClick={clearSearch}
+                className="px-6 py-2 bg-[#e84825] text-white rounded-full text-sm font-semibold hover:bg-[#c73d1e] transition-colors"
+              >
+                Clear Search
+              </button>
+            </motion.div>
+          )}
 
         {!loading && dishes.length === 0 && (
           <motion.div
@@ -475,9 +496,12 @@ const AllDishes = ({ activeCategory }) => {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full mb-4">
               <span className="text-4xl">🍽️</span>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No dishes found</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              No dishes found
+            </h3>
             <p className="text-gray-500 max-w-sm mx-auto">
-              We couldn't find any dishes in this category. Try exploring other categories.
+              We couldn't find any dishes in this category. Try exploring other
+              categories.
             </p>
           </motion.div>
         )}
